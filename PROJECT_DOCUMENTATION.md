@@ -106,6 +106,39 @@ Prioritize:
 
 This is not the final relevance engine. It is a pre-ranking filter to make raw feeds reviewable and to reduce obvious noise before later deduplication and scoring.
 
+## Preference Tuning Workflow
+
+Preference tuning is an ongoing Phase-2 quality process. It should happen repeatedly while reviewing `/raw`, especially after adding or changing sources.
+
+Recommended review loop:
+
+1. Open `/raw` on the deployed app.
+2. Review each category separately: Wirtschaft, Politik, Handball.
+3. Mark examples as:
+   - keep
+   - exclude
+   - too noisy
+   - missing topic
+   - source gap
+4. Translate clear patterns into `src/lib/article-filter.ts`.
+5. Document preference changes in this file.
+6. Add or update a decision in `DECISION_LOG.md` when the preference affects product behavior.
+7. Run `npm run check` and `npm run build`.
+8. Push to GitHub and validate on Vercel/iPhone.
+
+Quality rule:
+
+The raw feed can contain many items for inspection, but the future dashboard must stay limited to 3-5 items per category. More articles should only improve selection quality, not increase reading burden.
+
+Current preference tuning backlog:
+
+- Reduce Wirtschaft source volume before dashboard integration.
+- Keep ECB/Fed only for real rate decisions.
+- Add better free AI / major-tech coverage without marketing noise.
+- Continue filtering low-impact politics process items.
+- Separate possible future views for Germany/Europe vs international scope.
+- Reduce Handball match-report noise while keeping top teams, relegation battle, and Champions League.
+
 ## Internal APIs
 
 ### `/api/live/[category]`

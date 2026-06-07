@@ -177,3 +177,25 @@ Central-bank filtering is stricter than general Wirtschaft filtering and is impl
 Status:
 
 active
+
+### Decision 028 - Treat Preference Tuning As Continuous Quality Work
+
+Decision:
+
+Preference tuning is an ongoing product-quality workflow, not a one-time configuration task.
+
+Reason:
+
+The value of the app depends on reducing noise and selecting only the most relevant items. Feed quality, user interest, and source behavior will change over time, so filters and preferences must be reviewed repeatedly.
+
+Tradeoff:
+
+Requires recurring editorial review instead of fully automatic ingestion.
+
+Consequence:
+
+Every review cycle should use `/raw`, update `src/lib/article-filter.ts` when patterns are clear, and document preference changes in `PROJECT_DOCUMENTATION.md` and this Decision Log when they affect product behavior.
+
+Status:
+
+active
