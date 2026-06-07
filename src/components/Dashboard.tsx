@@ -38,7 +38,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      <section className="sticky top-[env(safe-area-inset-top)] z-10 -mx-4 mt-6 border-y border-line bg-canvas/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <section className="-mx-4 mt-6 border-y border-line bg-canvas px-4 py-3 sm:-mx-6 sm:px-6">
         <ModeToggle mode={mode} onModeChange={setMode} />
         <div className="mt-3">
           <CategoryTabs categories={categories} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
