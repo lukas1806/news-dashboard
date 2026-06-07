@@ -67,3 +67,25 @@ Every new source should be evaluated through `/api/sources/health` before being 
 Status:
 
 active
+
+### Decision 023 - Add Raw Feed Inspection As Internal View Only
+
+Decision:
+
+Add `/raw` as an internal Phase-2 view for visually inspecting normalized live feed articles.
+
+Reason:
+
+Before real content is allowed into the executive dashboard, source quality, freshness, noise level, and category fit need to be reviewed in context.
+
+Tradeoff:
+
+There is now an additional route, but it is not exposed as a primary navigation item.
+
+Consequence:
+
+The bottom navigation remains limited to Dashboard and Archive. `/raw` is a development and editorial inspection tool, not a product surface for daily use.
+
+Status:
+
+active

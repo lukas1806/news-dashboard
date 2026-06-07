@@ -69,6 +69,23 @@ Checks all configured sources and returns:
 
 This is a development and operations endpoint for validating the free feed setup.
 
+## Internal Views
+
+### `/raw`
+
+Internal Phase-2 view for inspecting live feed articles by category.
+
+Purpose:
+
+- visually review free source quality
+- spot noisy feeds
+- compare source freshness
+- validate category coverage
+
+It is intentionally not part of the bottom navigation. The product still has only two primary areas: Dashboard and Archive.
+
+The raw view must not become a generic news feed. It is a development tool for source validation before curated dashboard integration.
+
 ## Reliability Rules
 
 - Every feed request has an 8 second timeout.
