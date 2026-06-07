@@ -89,3 +89,69 @@ Consequence:
 Status:
 
 active
+
+### Decision 024 - Add Pre-Ranking Focus Filters
+
+Decision:
+
+Add category-specific focus filters before any ranking or dashboard integration.
+
+Reason:
+
+Raw feeds contain useful articles but too much noise for the product. The dashboard must later stay limited to 3-5 high-value items per category, otherwise it becomes a generic news feed.
+
+Tradeoff:
+
+Simple keyword rules can accidentally remove useful articles or keep weak ones.
+
+Consequence:
+
+Filters live in `src/lib/article-filter.ts` and should be iterated through `/raw` review before any final relevance engine is built.
+
+Status:
+
+active
+
+### Decision 025 - Keep International Wirtschaft And Politik In Scope
+
+Decision:
+
+Do not limit Wirtschaft and Politik to German domestic news. International developments from the USA, China, Russia, Europe, and global markets remain in scope.
+
+Reason:
+
+The user explicitly finds international economic and political context useful. The later dashboard may need national/international grouping rather than narrower sourcing.
+
+Tradeoff:
+
+Broader scope increases source volume and filtering complexity.
+
+Consequence:
+
+Future dashboard design should consider Germany/Europe vs international substructure while still limiting visible items strongly.
+
+Status:
+
+active
+
+### Decision 026 - Add ECB And Fed As Active Free Wirtschaft Sources
+
+Decision:
+
+Add official free ECB and Federal Reserve RSS feeds as active Wirtschaft sources.
+
+Reason:
+
+Current Wirtschaft feed quality is good, but central banking topics were under-covered. ECB and Fed are core topics in the PRD.
+
+Tradeoff:
+
+Official central-bank feeds are primary-source heavy and may be technical or not written like news articles.
+
+Consequence:
+
+These feeds need later summarization, deduplication, and relevance scoring before dashboard use.
+
+Status:
+
+active

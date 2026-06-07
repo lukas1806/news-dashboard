@@ -32,15 +32,78 @@ Phase 2 starts with public RSS feeds because they are free, simple, and availabl
 Active sources:
 
 - Tagesschau · Weltwirtschaft
+- Europäische Zentralbank · Press
+- Federal Reserve · Press Releases
 - Tagesschau · Alle Meldungen
 - Deutschlandfunk · Nachrichten
 - handball-world.news
 
 Candidate sources:
 
+- NVIDIA Blog
 - Politico Europe
 
 Candidate sources are listed but not used for the main category fetch until terms, reliability, and practical value are verified.
+
+## Editorial Preferences From Source Review
+
+### Wirtschaft
+
+Current Tagesschau world-economy feed is broadly useful. International business and macro items from China, Russia, the USA, and Europe should remain in scope.
+
+Known gaps:
+
+- AI
+- ECB
+- Fed
+- major technology companies
+
+The dashboard should later show a strict maximum of 3-5 focused items per category. Raw article volume must not become the user experience.
+
+Future structure to consider:
+
+- Wirtschaft Deutschland / Europa
+- Wirtschaft International
+
+### Politik
+
+Exclude or deprioritize:
+
+- local election results with low national relevance
+- Kosovo-only items unless geopolitically important
+- Lohntransparenz
+- Heizungsgesetz / low-impact climate-policy process items
+- Junge Union process debate
+- Peru election items
+- sport politics
+- religion
+- local accidents, fires, and crime items
+
+Future structure to consider:
+
+- Politik Deutschland
+- Weltpolitik / Internationale Beziehungen
+
+### Handball
+
+Exclude or deprioritize:
+
+- too many individual match reports
+- women's handball for the personal dashboard scope
+- videos and slideshows
+
+Prioritize:
+
+- top teams
+- relegation battle
+- Champions League
+- structural season developments
+
+## Focus Filtering
+
+`src/lib/article-filter.ts` contains the first editorial noise-reduction layer.
+
+This is not the final relevance engine. It is a pre-ranking filter to make raw feeds reviewable and to reduce obvious noise before later deduplication and scoring.
 
 ## Internal APIs
 

@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { getActiveFeedSources, getFeedSources } from "@/data/feed-sources";
+import { filterArticlesForFocus } from "@/lib/article-filter";
 import type { NewsCategory } from "@/types/news";
 import type { FeedHealth, FeedSource, LiveArticle } from "@/types/source";
 
@@ -45,7 +46,7 @@ export async function fetchLiveArticlesByCategory(category: NewsCategory): Promi
   const settledArticleGroups = await Promise.allSettled(sources.map((source) => fetchFeedSource(source)));
   const articleGroups = settledArticleGroups.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
 
-  return articleGroups
+  return filterArticlesForFocus(category, articleGroups)
     .sort((a, b) => new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime())
     .slice(0, 20);
 }
