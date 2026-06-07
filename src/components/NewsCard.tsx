@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Clock } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { getCategoryLabel, getItemTimeLabel } from "@/lib/news";
 import type { NewsItem } from "@/types/news";
 import { ScoreBadge } from "@/components/ScoreBadge";
@@ -19,6 +19,8 @@ export function NewsCard({ item }: { item: NewsItem }) {
             <span className="font-semibold uppercase tracking-[0.16em]">{getCategoryLabel(item.category)}</span>
             <span aria-hidden="true">·</span>
             <span>{getItemTimeLabel(item)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{item.readingTimeMinutes} Min</span>
           </div>
           <ScoreBadge score={item.relevanceScore} />
         </div>
@@ -30,11 +32,6 @@ export function NewsCard({ item }: { item: NewsItem }) {
             </Link>
           </h3>
           <p className="text-sm leading-6 text-slate-300">{item.summary}</p>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-muted">
-          <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-          <span>{item.readingTimeMinutes} Min</span>
         </div>
 
         {item.type === "weekly" ? <TagList tags={item.tags} /> : null}
