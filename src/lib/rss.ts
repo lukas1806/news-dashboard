@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
-import { getActiveFeedSources } from "@/data/feed-sources";
+import { getActiveFeedSources, getFeedSources } from "@/data/feed-sources";
 import type { NewsCategory } from "@/types/news";
-import type { FeedSource, LiveArticle } from "@/types/source";
+import type { FeedHealth, FeedSource, LiveArticle } from "@/types/source";
 
 type RssItem = {
   title?: string;
@@ -78,6 +78,50 @@ export async function fetchFeedSource(source: FeedSource): Promise<LiveArticle[]
     ...rssItems.map((item) => normalizeRssItem(item, source)),
     ...atomEntries.map((entry) => normalizeAtomEntry(entry, source)),
   ].filter(isCompleteArticle);
+}
+
+export async function checkFeedHealth(): Promise<FeedHealth[]> {
+  const settledHealthChecks = await Promise.allSettled(
+    getFeedSources().map(async (source) => {
+      const articles = await fetchFeedSource(source);
+      const latestPublishedAt = articles
+        .map((article) => article.publishedAt)
+        .filter((publishedAt): publishedAt is string => Boolean(publishedAt))
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+
+      return {
+        sourceId: source.id,
+        sourceName: source.name,
+        category: source.category,
+        status: source.status,
+        url: source.url,
+        ok: true,
+        articleCount: articles.length,
+        latestPublishedAt,
+        checkedAt: new Date().toISOString(),
+      } satisfies FeedHealth;
+    }),
+  );
+
+  return settledHealthChecks.map((result, index) => {
+    const source = getFeedSources()[index];
+
+    if (result.status === "fulfilled") {
+      return result.value;
+    }
+
+    return {
+      sourceId: source.id,
+      sourceName: source.name,
+      category: source.category,
+      status: source.status,
+      url: source.url,
+      ok: false,
+      articleCount: 0,
+      checkedAt: new Date().toISOString(),
+      error: result.reason instanceof Error ? result.reason.message : "Unknown feed error",
+    };
+  });
 }
 
 function normalizeRssItem(item: RssItem, source: FeedSource): LiveArticle {

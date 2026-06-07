@@ -58,3 +58,7 @@ export const feedSources: FeedSource[] = [
 export function getActiveFeedSources() {
   return feedSources.filter((source) => source.status === "active");
 }
+
+export function getFeedSources() {
+  return feedSources;
+}

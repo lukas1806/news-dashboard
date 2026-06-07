@@ -24,3 +24,16 @@ export type LiveArticle = {
   publishedAt?: string;
   excerpt?: string;
 };
+
+export type FeedHealth = {
+  sourceId: string;
+  sourceName: string;
+  category: NewsCategory;
+  status: FeedSourceStatus;
+  url: string;
+  ok: boolean;
+  articleCount: number;
+  latestPublishedAt?: string;
+  checkedAt: string;
+  error?: string;
+};
