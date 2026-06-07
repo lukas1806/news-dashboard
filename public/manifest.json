@@ -1,0 +1,18 @@
+{
+  "name": "Executive News Dashboard",
+  "short_name": "News",
+  "description": "Persönliches Executive News Dashboard als statische Phase-1-Demo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08090b",
+  "theme_color": "#08090b",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
