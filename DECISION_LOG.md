@@ -84,7 +84,7 @@ There is now an additional route, but it is not exposed as a primary navigation 
 
 Consequence:
 
-The bottom navigation remains limited to Dashboard and Archive. `/raw` is a development and editorial inspection tool, not a product surface for daily use.
+`/raw` may be temporarily linked in the bottom navigation while reviewing sources. It remains a development and editorial inspection tool, not a product surface for daily use.
 
 Status:
 

@@ -82,9 +82,9 @@ Purpose:
 - compare source freshness
 - validate category coverage
 
-It is intentionally not part of the bottom navigation. The product still has only two primary areas: Dashboard and Archive.
+It is temporarily visible in the bottom navigation during Phase 2 source review.
 
-The raw view must not become a generic news feed. It is a development tool for source validation before curated dashboard integration.
+The product target still has only two primary areas: Dashboard and Archive. The raw view must not become a generic news feed. It is a development tool for source validation before curated dashboard integration.
 
 ## Reliability Rules
 

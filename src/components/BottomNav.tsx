@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Archive, LayoutDashboard } from "lucide-react";
+import { Activity, Archive, LayoutDashboard } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/raw", label: "Rohdaten", icon: Activity },
   { href: "/archive", label: "Archiv", icon: Archive },
 ];
 
@@ -14,7 +15,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-canvas/94 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-2 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-3xl grid-cols-2 gap-2">
+      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
