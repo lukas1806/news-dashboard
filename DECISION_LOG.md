@@ -155,3 +155,25 @@ These feeds need later summarization, deduplication, and relevance scoring befor
 Status:
 
 active
+
+### Decision 027 - Filter Central Bank Feeds To Rate Decisions
+
+Decision:
+
+Keep ECB and Federal Reserve feeds active, but only pass items related to interest-rate or policy-rate decisions into review.
+
+Reason:
+
+The raw feeds contain too many speeches, technical releases, and institutional notices. The user only wants these sources surfaced for actual rate changes or directly related monetary-policy decisions.
+
+Tradeoff:
+
+Some useful central-bank context may be filtered out.
+
+Consequence:
+
+Central-bank filtering is stricter than general Wirtschaft filtering and is implemented in `src/lib/article-filter.ts`.
+
+Status:
+
+active

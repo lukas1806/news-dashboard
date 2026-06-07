@@ -54,9 +54,9 @@ Current Tagesschau world-economy feed is broadly useful. International business 
 Known gaps:
 
 - AI
-- ECB
-- Fed
 - major technology companies
+
+ECB and Fed are active sources, but their feeds are heavily filtered. Only interest-rate / policy-rate decision items should pass into review. Routine speeches, technical notices, and institutional statements are considered too noisy for the dashboard.
 
 The dashboard should later show a strict maximum of 3-5 focused items per category. Raw article volume must not become the user experience.
 
@@ -69,6 +69,7 @@ Future structure to consider:
 
 Exclude or deprioritize:
 
+- ADFC / cyclist interest-group items
 - local election results with low national relevance
 - Kosovo-only items unless geopolitically important
 - Lohntransparenz

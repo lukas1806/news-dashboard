@@ -2,6 +2,10 @@ import type { NewsCategory } from "@/types/news";
 import type { LiveArticle } from "@/types/source";
 
 const politicsExcludeTerms = [
+  "adfc",
+  "fahrrad",
+  "radfahrer",
+  "radfahrerin",
   "kosovo",
   "sachsen",
   "oberbürgermeister",
@@ -9,6 +13,7 @@ const politicsExcludeTerms = [
   "heizungsgesetz",
   "gebäudemodernisierungsgesetz",
   "junge union",
+  "vorstoß der jungen union",
   "peru",
   "sportpolitik",
   "olympia",
@@ -40,12 +45,37 @@ const handballFocusTerms = [
   "gidsel",
 ];
 
+const centralBankSourceIds = ["ecb-press", "federal-reserve-press"];
+
+const centralBankRateDecisionTerms = [
+  "interest rate decision",
+  "interest rate decisions",
+  "key interest rates",
+  "monetary policy decision",
+  "federal funds rate",
+  "rate cut",
+  "rate cuts",
+  "rate hike",
+  "rate hikes",
+  "rate increase",
+  "rate reduction",
+  "leitzins",
+  "zinsen",
+  "zinsentscheidung",
+  "zinssenkung",
+  "zinserhöhung",
+];
+
 export function filterArticlesForFocus(category: NewsCategory, articles: LiveArticle[]): LiveArticle[] {
   return articles.filter((article) => isRelevantForCategory(category, article));
 }
 
 function isRelevantForCategory(category: NewsCategory, article: LiveArticle): boolean {
   const haystack = articleText(article);
+
+  if (category === "wirtschaft" && centralBankSourceIds.includes(article.sourceId)) {
+    return containsAny(haystack, centralBankRateDecisionTerms);
+  }
 
   if (category === "politik") {
     return !containsAny(haystack, politicsExcludeTerms);
