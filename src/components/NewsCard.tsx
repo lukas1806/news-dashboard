@@ -35,8 +35,6 @@ export function NewsCard({ item }: { item: NewsItem }) {
         <div className="flex items-center gap-2 text-xs text-muted">
           <Clock aria-hidden="true" className="h-3.5 w-3.5" />
           <span>{item.readingTimeMinutes} Min</span>
-          <span aria-hidden="true">·</span>
-          <span>{item.type === "weekly" ? "Wochenaggregation" : "Tagesbriefing"}</span>
         </div>
 
         {item.type === "weekly" ? <TagList tags={item.tags} /> : null}

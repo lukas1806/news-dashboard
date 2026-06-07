@@ -25,7 +25,7 @@ export function Dashboard() {
 
   return (
     <main className="px-4 pb-28 pt-6 sm:px-6 sm:pt-8">
-      <header className="space-y-3">
+      <header>
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted">{currentDate}</p>
@@ -36,7 +36,6 @@ export function Dashboard() {
             <p className="text-sm font-semibold text-ink">Phase 1</p>
           </div>
         </div>
-        <p className="max-w-xl text-sm leading-6 text-slate-300">Kuratiertes Tages- und Wochenbriefing für Wirtschaft, Politik und Handball.</p>
       </header>
 
       <section className="sticky top-0 z-10 -mx-4 mt-6 border-y border-line bg-canvas/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
