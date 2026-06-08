@@ -44,19 +44,22 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
         "meta",
         "openai",
         "tesla",
+        "anthropic",
+        "ki-pause",
+        "gefahren künstlicher intelligenz",
       ],
       score: 18,
       reason: "KI oder großer Tech-Konzern",
     },
     {
-      terms: ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "börsen", "anleger", "tech-aktien", "chip-rally"],
-      score: 16,
+      terms: ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "börsen", "anleger", "tech-aktien", "chip-rally", "depot"],
+      score: 18,
       reason: "Aktien- oder Börsenrelevanz",
     },
     {
-      terms: ["leitzins", "zinsentscheidung", "zinssenkung", "zinserhöhung", "interest rate", "federal funds rate"],
+      terms: ["leitzins", "zinsentscheidung", "zinssenkung", "zinserhöhung", "interest rate", "federal funds rate", "ezb-analyse", "euro gewinnt weltweit", "eurozone"],
       score: 20,
-      reason: "Zentralbank-Zinsentscheidung",
+      reason: "Zentralbank oder Währungsrelevanz",
     },
     {
       terms: ["handel", "zoll", "zölle", "zollabkommen", "export", "import", "inflation", "konjunktur", "wachstum", "rezession"],
@@ -70,6 +73,17 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
     },
     {
       terms: ["raffinerie", "ostafrika", "afrikas reichster mann", "opec", "vereinigte arabische emirate", "stärker als erwartet"],
+      score: 16,
+      reason: "review-bestätigtes Wirtschaftstopthema",
+    },
+    {
+      terms: [
+        "euro gewinnt weltweit an bedeutung",
+        "werden die usa zum risiko im depot",
+        "inflation in der eurozone steigt",
+        "anthropic für weltweite ki-pause",
+        "usa drohen mit zusätzlichen zöllen",
+      ],
       score: 16,
       reason: "review-bestätigtes Wirtschaftstopthema",
     },
@@ -365,12 +379,20 @@ function getEconomyTopicKey(haystack: string): string | undefined {
     return "wirtschaft-handel-zoelle";
   }
 
-  if (containsAny(haystack, ["ki", "künstliche intelligenz", "artificial intelligence", "openai", "nvidia", "chip", "chips", "halbleiter"])) {
+  if (containsAny(haystack, ["ki", "künstliche intelligenz", "artificial intelligence", "openai", "nvidia", "anthropic", "ki-pause", "chip", "chips", "halbleiter"])) {
     return "wirtschaft-ki-chips";
   }
 
-  if (containsAny(haystack, ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "anleger", "tech-aktien", "chip-rally"])) {
+  if (containsAny(haystack, ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "anleger", "tech-aktien", "chip-rally", "depot"])) {
     return "wirtschaft-boerse-aktien";
+  }
+
+  if (containsAny(haystack, ["euro gewinnt weltweit", "ezb-analyse", "dollar", "währungs", "waehrungs"])) {
+    return "wirtschaft-waehrung-euro-dollar";
+  }
+
+  if (containsAny(haystack, ["inflation", "eurozone", "verbraucherpreise"])) {
+    return "wirtschaft-inflation";
   }
 
   if (containsAny(haystack, ["china", "peking", "automesse", "deutsche autos", "faire wettbewerb", "wächst stärker als erwartet"])) {

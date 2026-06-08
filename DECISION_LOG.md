@@ -377,3 +377,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 037 - Boost Reviewed AI And Equity Economy Topics
+
+Decision:
+
+Boost reviewed Wirtschaft examples around AI governance, AI stocks, portfolio risk, Eurozone inflation, euro/dollar relevance, and tariff threats.
+
+Reason:
+
+After activating Tagesschau Finanzen and Technologie, the user confirmed that AI and larger stock-market news are interesting and marked several concrete examples as higher priority.
+
+Tradeoff:
+
+Market and AI stories can be frequent, so topic clustering must continue to prevent them from crowding out trade, macro, and energy candidates.
+
+Consequence:
+
+`src/lib/article-candidates.ts` now gives additional weight to reviewed AI/stock/euro/inflation examples and clusters currency and inflation items separately from generic stock-market and AI/chip topics.
+
+Status:
+
+active

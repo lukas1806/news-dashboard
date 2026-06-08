@@ -63,6 +63,9 @@ Keep or prioritize:
 - digital infrastructure and telecom investment when economically material
 - major energy and commodity-market shifts such as OPEC exits and refinery investments
 - broad China growth / macro data when economically material
+- AI risk and governance items when tied to major companies or market implications
+- major equity / portfolio-risk stories, especially when linked to dollar, US risk, AI stocks, or large indices
+- Euro, dollar, inflation, and Eurozone macro signals
 
 Exclude or deprioritize:
 
@@ -83,6 +86,7 @@ Newly added Wirtschaft source review points:
 - Tagesschau Finanzen should improve large stock-market, DAX, Nasdaq, Wall Street, and major equity coverage.
 - Tagesschau Technologie should improve AI, chip, and major technology-company coverage without relying on company-owned marketing feeds.
 - Candidate selection should still keep one market/stock item and one AI/tech item at most when other strong Wirtschaft topics are available.
+- Confirmed high-value examples include Euro global relevance, US dollar/depot risk with AI stocks, Eurozone inflation, US/EU tariff threats, and Anthropic/AI-risk governance.
 
 ECB and Fed are active sources, but their feeds are heavily filtered. Only interest-rate / policy-rate decision items should pass into review. Routine speeches, technical notices, and institutional statements are considered too noisy for the dashboard.
 
