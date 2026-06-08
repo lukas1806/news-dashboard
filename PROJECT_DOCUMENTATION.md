@@ -105,11 +105,25 @@ Exclude or deprioritize:
 - natural disasters without direct political consequence
 - NGO protest actions such as Greenpeace traffic-sign actions
 - defense-program process items when they are too narrow for the personal dashboard
+- routine weather reports
+- religion/community-abuse features without direct political consequence
+- lower-priority study/process items about oceans, peace research, drones, atom weapons, single Ukraine attack events, or agriculture water use
 
 Future structure to consider:
 
 - Politik Deutschland
 - Weltpolitik / Internationale Beziehungen
+
+Prioritize:
+
+- tax/social reform with direct impact for Germany
+- large infrastructure projects such as Stuttgart 21
+- Ukraine funding and strategic geopolitical support
+- Middle East / Iran / Israel developments, but only once per top candidate set when stories overlap
+- border-control policy when nationally relevant
+- economic consequences of geopolitical conflict
+
+Candidate selection should avoid duplicate Politik stories in the top set. One Middle East/Iran-Israel item is enough when other strong political topics are available.
 
 ### Handball
 

@@ -53,8 +53,8 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
   ],
   politik: [
     {
-      terms: ["bundestag", "bundesregierung", "kanzler", "koalition", "minister", "regierung"],
-      score: 13,
+      terms: ["bundestag", "bundesregierung", "kanzler", "koalition", "minister", "regierung", "arbeitsministerin", "steuerreform", "entlastung"],
+      score: 14,
       reason: "bundespolitische Relevanz",
     },
     {
@@ -63,14 +63,19 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "internationale oder geopolitische Relevanz",
     },
     {
-      terms: ["krieg", "sanktionen", "sicherheit", "verteidigung", "migration", "haushalt", "grenzkontrollen", "zensurvorgaben"],
-      score: 10,
+      terms: ["krieg", "sanktionen", "sicherheit", "verteidigung", "migration", "haushalt", "grenzkontrollen", "zensurvorgaben", "tanker", "golf von oman"],
+      score: 12,
       reason: "strategisches Politikthema",
     },
     {
       terms: ["stuttgart 21", "bahnprojekt"],
       score: 11,
       reason: "großes Infrastrukturprojekt",
+    },
+    {
+      terms: ["eu überweist", "milliarden an die ukraine", "angriffswelle", "vorsichtiges aufatmen", "auftragsschwund", "nahost- und zinssorgen"],
+      score: 14,
+      reason: "review-bestätigtes Politiktopthema",
     },
   ],
   handball: [
@@ -137,6 +142,25 @@ const economyLowerPriorityTerms = [
   "klimafolgen",
 ];
 
+const politicsLowerPriorityTerms = [
+  "digitalminister wildberger will mehr tempo",
+  "ökosystem",
+  "ozeane",
+  "friedensgutachten",
+  "militärische gewalt ist normales mittel",
+  "drohnensichtungen",
+  "millionenkosten für flugbranche",
+  "xi jinping bei kim jong un",
+  "nordkorea",
+  "friedensforschungsinstitut",
+  "sipri",
+  "atomwaffen",
+  "ukraine greift zug auf der krim",
+  "ein toter",
+  "weniger wasserverbrauch",
+  "landwirtschaft",
+];
+
 export function selectArticleCandidates(
   category: NewsCategory,
   articles: LiveArticle[],
@@ -186,6 +210,11 @@ function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): Ca
 
   if (category === "wirtschaft" && containsAny(haystack, economyLowerPriorityTerms)) {
     score -= 10;
+    reasons.add("Review-Abzug");
+  }
+
+  if (category === "politik" && containsAny(haystack, politicsLowerPriorityTerms)) {
+    score -= 12;
     reasons.add("Review-Abzug");
   }
 
@@ -271,6 +300,10 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
     return getEconomyTopicKey(haystack);
   }
 
+  if (category === "politik") {
+    return getPoliticsTopicKey(haystack);
+  }
+
   if (category !== "handball") {
     return undefined;
   }
@@ -321,6 +354,42 @@ function getEconomyTopicKey(haystack: string): string | undefined {
 
   if (containsAny(haystack, ["telekommunikationsnetze", "digitalministerium", "milliardeninvestitionen"])) {
     return "wirtschaft-infrastruktur";
+  }
+
+  return undefined;
+}
+
+function getPoliticsTopicKey(haystack: string): string | undefined {
+  if (containsAny(haystack, ["iran", "israel", "naher osten", "golf von oman", "tanker", "angriffswelle", "vorsichtiges aufatmen"])) {
+    return "politik-nahost-iran-israel";
+  }
+
+  if (containsAny(haystack, ["ukraine", "russischer angriffskrieg", "krim"])) {
+    return "politik-ukraine";
+  }
+
+  if (containsAny(haystack, ["grenzkontrollen", "dpolg", "teggartz"])) {
+    return "politik-grenzkontrollen";
+  }
+
+  if (containsAny(haystack, ["arbeitsministerin", "bas", "steuerreform", "entlastung der deutschen", "middelberg"])) {
+    return "politik-reform-steuern-soziales";
+  }
+
+  if (containsAny(haystack, ["stuttgart 21", "bahnprojekt"])) {
+    return "politik-infrastruktur-stuttgart21";
+  }
+
+  if (containsAny(haystack, ["auftragsschwund", "statistisches bundesamt", "marktbericht", "nahost- und zinssorgen"])) {
+    return "politik-wirtschaftsfolgen";
+  }
+
+  if (containsAny(haystack, ["zensurvorgaben", "kriegsberichterstattung", "medien"])) {
+    return "politik-medien-zensur";
+  }
+
+  if (containsAny(haystack, ["digitalminister", "modernisierung"])) {
+    return "politik-digitalprozess";
   }
 
   return undefined;

@@ -333,3 +333,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 035 - Tune Politik Candidate Diversity
+
+Decision:
+
+Tune Politik candidate scoring and add topic diversity for recurring political story clusters.
+
+Reason:
+
+The user marked Middle East/Iran-Israel, Ukraine funding, border controls, tax/social reform, Stuttgart 21, media censorship, and economic conflict effects as useful, while weather, religion/community-abuse features, broad study/process items, single lower-impact Ukraine attack events, and agricultural water-use items should be filtered or demoted. The user also wants duplicate politics candidates avoided.
+
+Tradeoff:
+
+Some lower-priority international or policy items remain in raw review for visibility, but should rank below stronger candidate clusters.
+
+Consequence:
+
+`src/lib/article-filter.ts` excludes reviewed weather and religion/community-abuse noise. `src/lib/article-candidates.ts` boosts reviewed politics themes, demotes lower-priority patterns, and clusters politics candidates by Middle East/Iran-Israel, Ukraine, border controls, reform/tax/social policy, Stuttgart 21, media censorship, and economic conflict effects.
+
+Status:
+
+active
