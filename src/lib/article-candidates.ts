@@ -130,11 +130,12 @@ export function selectArticleCandidates(
   articles: LiveArticle[],
   limit = MAX_CANDIDATES_PER_CATEGORY,
 ): CandidateArticle[] {
-  return articles
+  const sortedCandidates = articles
     .map((article) => scoreArticleCandidate(category, article))
     .filter((article) => article.candidateScore > 0)
-    .sort(sortCandidates)
-    .slice(0, limit);
+    .sort(sortCandidates);
+
+  return selectDiverseCandidates(category, sortedCandidates, limit);
 }
 
 function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): CandidateArticle {
@@ -184,6 +185,106 @@ function sortCandidates(a: CandidateArticle, b: CandidateArticle): number {
   }
 
   return new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime();
+}
+
+function selectDiverseCandidates(category: NewsCategory, candidates: CandidateArticle[], limit: number): CandidateArticle[] {
+  const selected: CandidateArticle[] = [];
+  const selectedIds = new Set<string>();
+  const selectedTitleKeys = new Set<string>();
+  const selectedTopicKeys = new Set<string>();
+
+  for (const candidate of candidates) {
+    if (shouldSkipCandidate(category, candidate, selectedIds, selectedTitleKeys, selectedTopicKeys)) {
+      continue;
+    }
+
+    selected.push(candidate);
+    selectedIds.add(candidate.id);
+    selectedTitleKeys.add(createTitleKey(candidate.title));
+
+    const topicKey = getCandidateTopicKey(category, candidate);
+    if (topicKey) {
+      selectedTopicKeys.add(topicKey);
+    }
+
+    if (selected.length >= limit) {
+      return selected;
+    }
+  }
+
+  for (const candidate of candidates) {
+    const titleKey = createTitleKey(candidate.title);
+
+    if (selectedIds.has(candidate.id) || selectedTitleKeys.has(titleKey)) {
+      continue;
+    }
+
+    selected.push(candidate);
+    selectedIds.add(candidate.id);
+    selectedTitleKeys.add(titleKey);
+
+    if (selected.length >= limit) {
+      return selected;
+    }
+  }
+
+  return selected;
+}
+
+function shouldSkipCandidate(
+  category: NewsCategory,
+  candidate: CandidateArticle,
+  selectedIds: Set<string>,
+  selectedTitleKeys: Set<string>,
+  selectedTopicKeys: Set<string>,
+): boolean {
+  if (selectedIds.has(candidate.id) || selectedTitleKeys.has(createTitleKey(candidate.title))) {
+    return true;
+  }
+
+  const topicKey = getCandidateTopicKey(category, candidate);
+
+  return Boolean(topicKey && selectedTopicKeys.has(topicKey));
+}
+
+function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): string | undefined {
+  if (category !== "handball") {
+    return undefined;
+  }
+
+  const haystack = articleText(article);
+
+  if (containsAny(haystack, ["statistiken", "top-torschützen", "top-torhüter", "ewige hbl-torschützenliste"])) {
+    return "handball-ligaweite-einordnung";
+  }
+
+  if (containsAny(haystack, ["diese mannschaften spielen nächste saison"])) {
+    return "handball-champions-league-overview";
+  }
+
+  if (containsAny(haystack, ["jicha", "kiel", "thw", "europapokal", "restart", "totalschaden"])) {
+    return "handball-team-kiel";
+  }
+
+  if (containsAny(haystack, ["füchse", "fuechse", "berlin", "gidsel"])) {
+    return "handball-team-fuechse-berlin";
+  }
+
+  if (containsAny(haystack, ["magdeburg", "scm"])) {
+    return "handball-team-magdeburg";
+  }
+
+  return undefined;
+}
+
+function createTitleKey(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/["'„“”‚‘’]/g, "")
+    .replace(/[^a-z0-9äöüß]+/g, " ")
+    .replace(/\b(der|die|das|ein|eine|und|oder|mit|nach|vor|zur|zum|im|in|am|an|auf)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getFreshnessScore(publishedAt: string | undefined): number {

@@ -276,7 +276,7 @@ Boost review-confirmed Handball candidate patterns and demote lower-priority mat
 
 Reason:
 
-The first browser-local review marked Champions League participation, Kiel restart/Jicha, league-wide statistics, top goalkeeper, and top scorer rankings as useful. It also marked single-match reports, minute-format pieces, player farewell items, local season interviews, and minor transfer-adjacent stories as lower priority.
+The first browser-local review marked Champions League participation, structural top-team topics, league-wide statistics, top goalkeeper, and top scorer rankings as useful. It also marked single-match reports, minute-format pieces, player farewell items, local season interviews, and minor transfer-adjacent stories as lower priority.
 
 Tradeoff:
 
@@ -285,6 +285,28 @@ Lower-priority items remain visible in raw review instead of being fully exclude
 Consequence:
 
 `src/lib/article-candidates.ts` now gives stronger Handball boosts for confirmed top themes and applies a review-based score penalty to weaker Handball patterns.
+
+Status:
+
+active
+
+### Decision 033 - Add Candidate Diversity Guardrails
+
+Decision:
+
+Avoid duplicate or near-duplicate candidate stories in the small top-candidate set.
+
+Reason:
+
+The dashboard target is only 3-5 items per category. Repeating the same story angle, such as multiple Handball items about the same team/person topic, wastes limited attention even when each individual article is relevant.
+
+Tradeoff:
+
+A second good article on the same topic may be held back when enough other strong candidates exist.
+
+Consequence:
+
+`src/lib/article-candidates.ts` now deduplicates candidate titles and applies Handball topic diversity for recurring top-team and league-wide topic clusters. This is a selection-quality rule, not a source exclusion.
 
 Status:
 

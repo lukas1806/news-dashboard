@@ -123,8 +123,10 @@ Prioritize:
 - structural season developments
 - league-wide statistics and top-player rankings
 - Champions League qualification and European-cup participation
-- Kiel structural reset / Jicha / restart topics
+- structural reset / coach / restart topics for top teams such as Füchse Berlin, SC Magdeburg, and THW Kiel
 - HBL top goalkeeper and top scorer rankings
+
+Candidate selection should avoid duplicate stories in the top set. For example, the same Handball candidate group should not contain multiple near-identical team/person items about Kiel/Jicha when other strong topics are available.
 
 ## Focus Filtering
 
