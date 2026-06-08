@@ -306,7 +306,29 @@ A second good article on the same topic may be held back when enough other stron
 
 Consequence:
 
-`src/lib/article-candidates.ts` now deduplicates candidate titles and applies Handball topic diversity for recurring top-team and league-wide topic clusters. This is a selection-quality rule, not a source exclusion.
+`src/lib/article-candidates.ts` now deduplicates candidate titles and applies topic diversity for recurring top-team, league-wide, trade, China, and energy topic clusters. This is a selection-quality rule, not a source exclusion.
+
+Status:
+
+active
+
+### Decision 034 - Tune Wirtschaft Candidate Diversity
+
+Decision:
+
+Apply the same small-set diversity principle to Wirtschaft candidates.
+
+Reason:
+
+The user confirmed that multiple candidate cards for the same tariff/trade topic or the same Germany/China topic are too repetitive. One strong card per economic topic cluster is enough in the top candidate set.
+
+Tradeoff:
+
+A second useful article on the same economic topic may be held back while other strong topic clusters are available.
+
+Consequence:
+
+`src/lib/article-candidates.ts` now clusters Wirtschaft candidates by trade/tariffs, China, energy/commodities, Russia currency, climate costs, and infrastructure. It also boosts reviewed Africa/OPEC/China-growth examples, demotes reviewed lower-priority examples, and `src/lib/article-filter.ts` excludes the reviewed Trump-tariff repayment item.
 
 Status:
 

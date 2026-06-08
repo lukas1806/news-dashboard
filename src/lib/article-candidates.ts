@@ -45,6 +45,11 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       score: 12,
       reason: "Industrie- oder Infrastrukturrelevanz",
     },
+    {
+      terms: ["raffinerie", "ostafrika", "afrikas reichster mann", "opec", "vereinigte arabische emirate", "stärker als erwartet"],
+      score: 16,
+      reason: "review-bestätigtes Wirtschaftstopthema",
+    },
   ],
   politik: [
     {
@@ -125,6 +130,13 @@ const handballLowerPriorityTerms = [
   "verlässt wetzlar",
 ];
 
+const economyLowerPriorityTerms = [
+  "rubel-rally",
+  "putin zum problem",
+  "hitze kostet deutschlands wirtschaft",
+  "klimafolgen",
+];
+
 export function selectArticleCandidates(
   category: NewsCategory,
   articles: LiveArticle[],
@@ -169,6 +181,11 @@ function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): Ca
 
   if (category === "handball" && containsAny(haystack, handballLowerPriorityTerms)) {
     score -= 14;
+    reasons.add("Review-Abzug");
+  }
+
+  if (category === "wirtschaft" && containsAny(haystack, economyLowerPriorityTerms)) {
+    score -= 10;
     reasons.add("Review-Abzug");
   }
 
@@ -248,11 +265,15 @@ function shouldSkipCandidate(
 }
 
 function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): string | undefined {
+  const haystack = articleText(article);
+
+  if (category === "wirtschaft") {
+    return getEconomyTopicKey(haystack);
+  }
+
   if (category !== "handball") {
     return undefined;
   }
-
-  const haystack = articleText(article);
 
   if (containsAny(haystack, ["statistiken", "top-torschützen", "top-torhüter", "ewige hbl-torschützenliste"])) {
     return "handball-ligaweite-einordnung";
@@ -272,6 +293,34 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
 
   if (containsAny(haystack, ["magdeburg", "scm"])) {
     return "handball-team-magdeburg";
+  }
+
+  return undefined;
+}
+
+function getEconomyTopicKey(haystack: string): string | undefined {
+  if (containsAny(haystack, ["zoll", "zölle", "zollabkommen", "handelspartner", "handelskonflikt", "trump-zölle"])) {
+    return "wirtschaft-handel-zoelle";
+  }
+
+  if (containsAny(haystack, ["china", "peking", "automesse", "deutsche autos", "faire wettbewerb", "wächst stärker als erwartet"])) {
+    return "wirtschaft-china";
+  }
+
+  if (containsAny(haystack, ["iran-krieg", "flugbenzin", "opec", "vereinigte arabische emirate", "öl", "raffinerie", "ostafrika"])) {
+    return "wirtschaft-energie-rohstoffe";
+  }
+
+  if (containsAny(haystack, ["rubel", "russland", "putin"])) {
+    return "wirtschaft-russland-waehrung";
+  }
+
+  if (containsAny(haystack, ["klimafolgen", "hitze kostet", "deutschlands wirtschaft milliarden"])) {
+    return "wirtschaft-klima-kosten";
+  }
+
+  if (containsAny(haystack, ["telekommunikationsnetze", "digitalministerium", "milliardeninvestitionen"])) {
+    return "wirtschaft-infrastruktur";
   }
 
   return undefined;

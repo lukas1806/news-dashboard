@@ -59,11 +59,17 @@ Keep or prioritize:
 - German industry in international markets
 - aviation fuel and conflict-driven commodity effects
 - digital infrastructure and telecom investment when economically material
+- major energy and commodity-market shifts such as OPEC exits and refinery investments
+- broad China growth / macro data when economically material
 
 Exclude or deprioritize:
 
 - central-bank personnel speculation unless tied to an actual rate decision
 - ministerial trip/process items without clear economic consequence
+- tariff repayment/legal cleanup items without forward-looking market impact
+- narrower Russia currency or climate-cost items when stronger macro/trade/energy candidates are available
+
+Candidate selection should avoid duplicate Wirtschaft stories in the top set. One tariff/trade item, one China item, or one energy/commodity item is enough when other strong topics are available.
 
 Known gaps:
 

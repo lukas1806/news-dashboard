@@ -45,6 +45,8 @@ const politicsExcludeTerms = [
 const economyExcludeTerms = [
   "wirtschaftsministerin in china",
   "reiche mahnt fairen wettbewerb",
+  "rückzahlung illegaler trump-zölle",
+  "usa starten rückzahlung illegaler trump-zölle",
   "kevin warsh",
   "fed-chef",
   "scheidender fed-chef",
