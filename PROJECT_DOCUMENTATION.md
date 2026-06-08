@@ -52,6 +52,18 @@ Candidate sources are listed but not used for the main category fetch until term
 
 Current Tagesschau world-economy feed is broadly useful. International business and macro items from China, Russia, the USA, and Europe should remain in scope.
 
+Keep or prioritize:
+
+- international trade and tariff conflicts, especially USA/EU/China
+- German industry in international markets
+- aviation fuel and conflict-driven commodity effects
+- digital infrastructure and telecom investment when economically material
+
+Exclude or deprioritize:
+
+- central-bank personnel speculation unless tied to an actual rate decision
+- ministerial trip/process items without clear economic consequence
+
 Known gaps:
 
 - AI
@@ -80,6 +92,12 @@ Exclude or deprioritize:
 - sport politics
 - religion
 - local accidents, fires, and crime items
+- single-opposition court cases without broader geopolitical impact
+- climate-conference process items
+- local/municipal capacity warnings
+- natural disasters without direct political consequence
+- NGO protest actions such as Greenpeace traffic-sign actions
+- defense-program process items when they are too narrow for the personal dashboard
 
 Future structure to consider:
 
@@ -93,6 +111,8 @@ Exclude or deprioritize:
 - too many individual match reports
 - women's handball for the personal dashboard scope
 - videos and slideshows
+- local farewell / weak-season / player-interview pieces
+- last-second single-match result reports
 
 Prioritize:
 
@@ -100,6 +120,7 @@ Prioritize:
 - relegation battle
 - Champions League
 - structural season developments
+- league-wide statistics and top-player rankings
 
 ## Focus Filtering
 

@@ -21,7 +21,7 @@ const sourceScores: Record<string, { score: number; reason: string }> = {
 const categoryRules: Record<NewsCategory, CandidateRule[]> = {
   wirtschaft: [
     {
-      terms: ["china", "usa", "vereinigte staaten", "russland", "europa", "eurozone", "weltwirtschaft"],
+      terms: ["china", "usa", "vereinigte staaten", "russland", "europa", "eurozone", "eu", "weltwirtschaft"],
       score: 16,
       reason: "internationaler Wirtschaftskontext",
     },
@@ -36,9 +36,14 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "Zentralbank-Zinsentscheidung",
     },
     {
-      terms: ["handel", "zoll", "export", "import", "inflation", "konjunktur", "wachstum", "rezession"],
-      score: 10,
-      reason: "makroökonomische Relevanz",
+      terms: ["handel", "zoll", "zölle", "zollabkommen", "export", "import", "inflation", "konjunktur", "wachstum", "rezession"],
+      score: 14,
+      reason: "Handel oder makroökonomische Relevanz",
+    },
+    {
+      terms: ["auto", "autos", "automesse", "peking", "flugbenzin", "telekommunikationsnetze", "digitalministerium", "milliardeninvestitionen"],
+      score: 12,
+      reason: "Industrie- oder Infrastrukturrelevanz",
     },
   ],
   politik: [
@@ -48,14 +53,19 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "bundespolitische Relevanz",
     },
     {
-      terms: ["eu", "europa", "nato", "ukraine", "russland", "china", "usa", "vereinigte staaten"],
+      terms: ["eu", "europa", "nato", "ukraine", "russland", "china", "usa", "vereinigte staaten", "iran", "israel", "naher osten"],
       score: 15,
       reason: "internationale oder geopolitische Relevanz",
     },
     {
-      terms: ["krieg", "sanktionen", "sicherheit", "verteidigung", "migration", "haushalt"],
+      terms: ["krieg", "sanktionen", "sicherheit", "verteidigung", "migration", "haushalt", "grenzkontrollen", "zensurvorgaben"],
       score: 10,
       reason: "strategisches Politikthema",
+    },
+    {
+      terms: ["stuttgart 21", "bahnprojekt"],
+      score: 11,
+      reason: "großes Infrastrukturprojekt",
     },
   ],
   handball: [
@@ -75,9 +85,14 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "Topteam oder Schlüsselspieler",
     },
     {
-      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle"],
-      score: 9,
+      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle", "jicha", "europapokal"],
+      score: 11,
       reason: "strukturelle Saisonentwicklung",
+    },
+    {
+      terms: ["statistiken", "top-torschützen", "krone"],
+      score: 10,
+      reason: "Ligaweite Einordnung",
     },
   ],
 };

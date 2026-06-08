@@ -223,3 +223,25 @@ Candidate scoring lives in `src/lib/article-candidates.ts`, `/raw` shows candida
 Status:
 
 active
+
+### Decision 030 - Tune Candidate Preferences From First Raw Review
+
+Decision:
+
+Update focus filters and candidate weights based on the first reviewed `/raw` candidate set.
+
+Reason:
+
+The user marked concrete keep/exclude examples across Wirtschaft, Politik, and Handball. These examples showed that the candidate layer should favor trade, infrastructure, geopolitical conflict, top-team handball, Champions League, league-wide statistics, and structural season topics, while filtering low-impact process, local, NGO, disaster, central-bank personnel, and individual match/player stories.
+
+Tradeoff:
+
+Keyword tuning remains imperfect and can over-filter edge cases.
+
+Consequence:
+
+`src/lib/article-filter.ts` now excludes additional reviewed noise patterns, while `src/lib/article-candidates.ts` boosts the newly confirmed keep patterns.
+
+Status:
+
+active

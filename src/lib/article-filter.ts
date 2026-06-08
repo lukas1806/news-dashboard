@@ -6,12 +6,16 @@ const politicsExcludeTerms = [
   "fahrrad",
   "radfahrer",
   "radfahrerin",
+  "chodorkowski",
   "kosovo",
   "sachsen",
   "oberbürgermeister",
   "lohntransparenz",
   "heizungsgesetz",
   "gebäudemodernisierungsgesetz",
+  "klimagipfel",
+  "cop31",
+  "uno-klimachef",
   "junge union",
   "vorstoß der jungen union",
   "peru",
@@ -23,9 +27,44 @@ const politicsExcludeTerms = [
   "brand",
   "unfall",
   "kulturspeicher",
+  "angriffe auf personal",
+  "hilfetelefon",
+  "gewalt gegen frauen",
+  "landkreistag",
+  "kommunen",
+  "erdbeben",
+  "philippinen",
+  "tsunami",
+  "armenien",
+  "paschinjan",
+  "fcas",
+  "greenpeace",
+  "tempolimit",
 ];
 
-const handballExcludeTerms = ["frauen", "damen", "video", "slideshow"];
+const economyExcludeTerms = [
+  "wirtschaftsministerin in china",
+  "reiche mahnt fairen wettbewerb",
+  "kevin warsh",
+  "fed-chef",
+  "scheidender fed-chef",
+  "powell will im vorstand",
+];
+
+const handballExcludeTerms = [
+  "frauen",
+  "damen",
+  "video",
+  "slideshow",
+  "hce-rückrunde",
+  "freibier",
+  "verabschiedet sich aus der ersten liga",
+  "hannover-wechsel",
+  "dhb-rückkehr",
+  "beyer trifft",
+  "jubelt gegen",
+  "göppingen",
+];
 
 const handballFocusTerms = [
   "hbl",
@@ -43,6 +82,10 @@ const handballFocusTerms = [
   "lemgo",
   "hannover",
   "gidsel",
+  "jicha",
+  "europapokal",
+  "statistiken",
+  "top-torschützen",
 ];
 
 const centralBankSourceIds = ["ecb-press", "federal-reserve-press"];
@@ -72,6 +115,10 @@ export function filterArticlesForFocus(category: NewsCategory, articles: LiveArt
 
 function isRelevantForCategory(category: NewsCategory, article: LiveArticle): boolean {
   const haystack = articleText(article);
+
+  if (category === "wirtschaft" && containsAny(haystack, economyExcludeTerms)) {
+    return false;
+  }
 
   if (category === "wirtschaft" && centralBankSourceIds.includes(article.sourceId)) {
     return containsAny(haystack, centralBankRateDecisionTerms);
