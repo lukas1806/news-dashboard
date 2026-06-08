@@ -245,3 +245,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 031 - Add Browser-Local Raw Review Controls
+
+Decision:
+
+Add local review controls to `/raw` so articles can be marked as good, higher, lower, or exclude directly in the app.
+
+Reason:
+
+Repeatedly copying raw article lists into chat is slower than reviewing in context. Browser-local ratings make the preference tuning loop faster while keeping the feature scoped to internal Phase-2 source quality work.
+
+Tradeoff:
+
+Ratings are not shared across devices or sessions beyond the same browser storage.
+
+Consequence:
+
+`/raw` now stores review marks in `localStorage`, can hide excluded articles, can apply review sorting, and can export a text summary for further tuning. No database, AI, accounts, or dashboard behavior are introduced.
+
+Status:
+
+active

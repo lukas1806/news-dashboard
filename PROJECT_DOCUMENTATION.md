@@ -16,6 +16,7 @@ Build:
 - Source health checks
 - Basic source documentation
 - Simple candidate selection from filtered raw articles
+- Browser-local raw article review controls
 
 Do not build yet:
 
@@ -219,10 +220,18 @@ Purpose:
 - compare source freshness
 - validate category coverage
 - inspect the current top candidates and their rule-based reasons
+- mark raw articles as good, higher, lower, or exclude for iterative preference tuning
 
 It is temporarily visible in the bottom navigation during Phase 2 source review.
 
 The product target still has only two primary areas: Dashboard and Archive. The raw view must not become a generic news feed. It is a development tool for source validation before curated dashboard integration.
+
+Raw review controls:
+
+- Ratings are stored only in browser `localStorage`.
+- No database, server write, user account, AI, or persistent backend state is involved.
+- The review summary can be copied and pasted into the tuning chat.
+- `Raus ausblenden` and `Review-Sortierung` are local inspection tools only.
 
 ## Reliability Rules
 

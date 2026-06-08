@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Activity, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RawFeedSection } from "@/components/RawFeedSection";
+import { RawReviewSummary } from "@/components/RawReviewSummary";
 import { selectArticleCandidates } from "@/lib/article-candidates";
 import { categories } from "@/lib/news";
 import { fetchLiveArticlesByCategory } from "@/lib/rss";
@@ -49,6 +50,10 @@ export default async function RawFeedsPage() {
             {totalCandidates} Kandidaten aus {totalArticles} geladenen Artikeln
           </p>
         </header>
+
+        <div className="mt-6">
+          <RawReviewSummary />
+        </div>
 
         <div className="mt-7 space-y-8">
           {articleGroups.map((group) => (
