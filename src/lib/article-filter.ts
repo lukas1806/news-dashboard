@@ -86,6 +86,10 @@ const handballFocusTerms = [
   "europapokal",
   "statistiken",
   "top-torschützen",
+  "top-torhüter",
+  "ludwig auf der eins",
+  "restart",
+  "totalschaden",
 ];
 
 const centralBankSourceIds = ["ecb-press", "federal-reserve-press"];

@@ -267,3 +267,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 032 - Tune Handball Candidate Ranking From Review Controls
+
+Decision:
+
+Boost review-confirmed Handball candidate patterns and demote lower-priority match, interview, farewell, and transfer-adjacent stories.
+
+Reason:
+
+The first browser-local review marked Champions League participation, Kiel restart/Jicha, league-wide statistics, top goalkeeper, and top scorer rankings as useful. It also marked single-match reports, minute-format pieces, player farewell items, local season interviews, and minor transfer-adjacent stories as lower priority.
+
+Tradeoff:
+
+Lower-priority items remain visible in raw review instead of being fully excluded, so some noise can still appear below stronger candidates.
+
+Consequence:
+
+`src/lib/article-candidates.ts` now gives stronger Handball boosts for confirmed top themes and applies a review-based score penalty to weaker Handball patterns.
+
+Status:
+
+active

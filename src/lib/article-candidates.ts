@@ -70,8 +70,8 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
   ],
   handball: [
     {
-      terms: ["champions league", "ehf", "final four"],
-      score: 18,
+      terms: ["champions league", "ehf", "final four", "cl-final4"],
+      score: 22,
       reason: "internationaler Spitzenwettbewerb",
     },
     {
@@ -81,18 +81,23 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
     },
     {
       terms: ["füchse", "berlin", "magdeburg", "flensburg", "kiel", "thw", "melsungen", "gidsel"],
-      score: 13,
+      score: 14,
       reason: "Topteam oder Schlüsselspieler",
     },
     {
-      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle", "jicha", "europapokal"],
-      score: 11,
+      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle", "jicha", "europapokal", "restart", "totalschaden"],
+      score: 13,
       reason: "strukturelle Saisonentwicklung",
     },
     {
-      terms: ["statistiken", "top-torschützen", "krone"],
-      score: 10,
+      terms: ["statistiken", "top-torschützen", "top-torhüter", "krone", "ludwig auf der eins"],
+      score: 15,
       reason: "Ligaweite Einordnung",
+    },
+    {
+      terms: ["diese mannschaften spielen nächste saison", "spielt nicht im europapokal", "wollen revanche", "wie geht es in kiel mit jicha"],
+      score: 16,
+      reason: "review-bestätigtes Handball-Topthema",
     },
   ],
 };
@@ -104,6 +109,20 @@ const handballMatchReportTerms = [
   "niederlage gegen",
   "gewann gegen",
   "verliert gegen",
+];
+
+const handballLowerPriorityTerms = [
+  "58. spielminute",
+  "ewige hbl-torschützenliste",
+  "erst harmlos, dann dominant",
+  "stuttgart besiegt erlangen",
+  "möstl verdirbt",
+  "bilyk-abschied",
+  "hsv hamburg nach der pause",
+  "christophersen über hannover-saison",
+  "natürlich nicht zufrieden",
+  "trotz klassenerhalt",
+  "verlässt wetzlar",
 ];
 
 export function selectArticleCandidates(
@@ -145,6 +164,11 @@ function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): Ca
   if (category === "handball" && containsAny(haystack, handballMatchReportTerms)) {
     score -= 8;
     reasons.add("Matchbericht-Abzug");
+  }
+
+  if (category === "handball" && containsAny(haystack, handballLowerPriorityTerms)) {
+    score -= 14;
+    reasons.add("Review-Abzug");
   }
 
   return {

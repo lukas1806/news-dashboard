@@ -122,6 +122,9 @@ Prioritize:
 - Champions League
 - structural season developments
 - league-wide statistics and top-player rankings
+- Champions League qualification and European-cup participation
+- Kiel structural reset / Jicha / restart topics
+- HBL top goalkeeper and top scorer rankings
 
 ## Focus Filtering
 
