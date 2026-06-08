@@ -27,7 +27,16 @@ export function RawFeedSection({
   const [useReviewSort, setUseReviewSort] = useState(false);
 
   useEffect(() => {
-    setReviews(readReviews());
+    const loadReviews = () => setReviews(readReviews());
+
+    loadReviews();
+    window.addEventListener(RAW_REVIEW_UPDATED_EVENT, loadReviews);
+    window.addEventListener("storage", loadReviews);
+
+    return () => {
+      window.removeEventListener(RAW_REVIEW_UPDATED_EVENT, loadReviews);
+      window.removeEventListener("storage", loadReviews);
+    };
   }, []);
 
   const visibleCandidates = useMemo(
@@ -40,7 +49,7 @@ export function RawFeedSection({
   );
 
   function saveReview(article: LiveArticle, action: RawReviewAction | undefined) {
-    const nextReviews = { ...reviews };
+    const nextReviews = readReviews();
 
     if (action) {
       nextReviews[article.id] = {

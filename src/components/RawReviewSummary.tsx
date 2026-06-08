@@ -52,6 +52,7 @@ export function RawReviewSummary() {
 
   function clearReviews() {
     localStorage.removeItem(RAW_REVIEW_STORAGE_KEY);
+    setReviews({});
     window.dispatchEvent(new Event(RAW_REVIEW_UPDATED_EVENT));
   }
 
