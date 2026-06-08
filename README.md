@@ -1,6 +1,6 @@
 # Executive News Dashboard
 
-Statische Phase-1-Demo für ein persönliches Executive News Dashboard.
+Phase-1-Demo für ein persönliches Executive News Dashboard mit begonnener Phase-2-Content-Engine.
 
 ## Stack
 
@@ -8,6 +8,7 @@ Statische Phase-1-Demo für ein persönliches Executive News Dashboard.
 - TypeScript
 - Tailwind CSS
 - Mockdaten
+- kostenlose RSS-Feeds für interne Phase-2-Validierung
 - Dark Mode only
 - PWA Manifest
 
@@ -41,4 +42,4 @@ Beim Import in Vercel:
 - Build Command: `npm run build`
 - Output Directory: leer lassen
 
-Die App enthält keine echten APIs, keine Datenbank und keine KI-Integration.
+Die App enthält interne Phase-2-APIs für RSS-Quellenprüfung und Kandidatenauswahl, aber weiterhin keine Datenbank, keine KI-Integration und keine paid APIs.

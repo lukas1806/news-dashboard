@@ -25,6 +25,11 @@ export type LiveArticle = {
   excerpt?: string;
 };
 
+export type CandidateArticle = LiveArticle & {
+  candidateScore: number;
+  candidateReasons: string[];
+};
+
 export type FeedHealth = {
   sourceId: string;
   sourceName: string;

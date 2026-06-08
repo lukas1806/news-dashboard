@@ -1,8 +1,9 @@
 import { XMLParser } from "fast-xml-parser";
 import { getActiveFeedSources, getFeedSources } from "@/data/feed-sources";
+import { selectArticleCandidates } from "@/lib/article-candidates";
 import { filterArticlesForFocus } from "@/lib/article-filter";
 import type { NewsCategory } from "@/types/news";
-import type { FeedHealth, FeedSource, LiveArticle } from "@/types/source";
+import type { CandidateArticle, FeedHealth, FeedSource, LiveArticle } from "@/types/source";
 
 type RssItem = {
   title?: string;
@@ -49,6 +50,12 @@ export async function fetchLiveArticlesByCategory(category: NewsCategory): Promi
   return filterArticlesForFocus(category, articleGroups)
     .sort((a, b) => new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime())
     .slice(0, 20);
+}
+
+export async function fetchArticleCandidatesByCategory(category: NewsCategory): Promise<CandidateArticle[]> {
+  const articles = await fetchLiveArticlesByCategory(category);
+
+  return selectArticleCandidates(category, articles);
 }
 
 export async function fetchFeedSource(source: FeedSource): Promise<LiveArticle[]> {

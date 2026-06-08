@@ -15,6 +15,7 @@ Build:
 - Raw article normalization
 - Source health checks
 - Basic source documentation
+- Simple candidate selection from filtered raw articles
 
 Do not build yet:
 
@@ -106,6 +107,14 @@ Prioritize:
 
 This is not the final relevance engine. It is a pre-ranking filter to make raw feeds reviewable and to reduce obvious noise before later deduplication and scoring.
 
+## Candidate Selection
+
+`src/lib/article-candidates.ts` contains a first deterministic candidate layer.
+
+It scores already-filtered raw articles with transparent source, topic, and freshness rules, then selects at most 5 candidates per category. Candidate reasons are shown in `/raw` to support preference review.
+
+This is still not the final dashboard relevance engine. It does not summarize, deduplicate, store, personalize, or use AI. Its job is to prove that the app can reduce raw feed volume to a small reviewable set before any curated dashboard integration.
+
 ## Preference Tuning Workflow
 
 Preference tuning is an ongoing Phase-2 quality process. It should happen repeatedly while reviewing `/raw`, especially after adding or changing sources.
@@ -151,6 +160,16 @@ Returns normalized live articles for one category:
 
 The route returns raw normalized article metadata only. It does not generate summaries or scores.
 
+### `/api/candidates/[category]`
+
+Returns a small scored candidate set for one category:
+
+- `/api/candidates/wirtschaft`
+- `/api/candidates/politik`
+- `/api/candidates/handball`
+
+The route uses the same free RSS source layer and focus filters as `/api/live/[category]`, then applies deterministic candidate scoring. It returns article metadata, `candidateScore`, and `candidateReasons`.
+
 ### `/api/sources/health`
 
 Checks all configured sources and returns:
@@ -178,6 +197,7 @@ Purpose:
 - spot noisy feeds
 - compare source freshness
 - validate category coverage
+- inspect the current top candidates and their rule-based reasons
 
 It is temporarily visible in the bottom navigation during Phase 2 source review.
 

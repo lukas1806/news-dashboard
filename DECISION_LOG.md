@@ -199,3 +199,27 @@ Every review cycle should use `/raw`, update `src/lib/article-filter.ts` when pa
 Status:
 
 active
+
+## 2026-06-08
+
+### Decision 029 - Add A Small Transparent Candidate Layer Before Dashboard Integration
+
+Decision:
+
+Add a deterministic candidate-selection layer that scores filtered raw articles and returns at most 5 candidates per category.
+
+Reason:
+
+The product must not become a newsfeed. A visible candidate layer lets us test whether free RSS sources can be reduced to a small, high-signal set before any final dashboard integration, AI summarization, or storage is added.
+
+Tradeoff:
+
+Keyword and source weights are simple and can miss nuance. They need continued review in `/raw`.
+
+Consequence:
+
+Candidate scoring lives in `src/lib/article-candidates.ts`, `/raw` shows candidate scores and reasons, and `/api/candidates/[category]` exposes the internal candidate set for validation.
+
+Status:
+
+active

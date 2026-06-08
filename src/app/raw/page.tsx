@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Activity, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RawFeedSection } from "@/components/RawFeedSection";
+import { selectArticleCandidates } from "@/lib/article-candidates";
 import { categories } from "@/lib/news";
 import { fetchLiveArticlesByCategory } from "@/lib/rss";
 import type { NewsCategory } from "@/types/news";
@@ -11,13 +12,19 @@ export const dynamic = "force-dynamic";
 
 export default async function RawFeedsPage() {
   const articleGroups = await Promise.all(
-    categories.map(async (category) => ({
-      category: category.id,
-      articles: await fetchSafeArticles(category.id),
-    })),
+    categories.map(async (category) => {
+      const articles = await fetchSafeArticles(category.id);
+
+      return {
+        category: category.id,
+        articles,
+        candidates: selectArticleCandidates(category.id, articles),
+      };
+    }),
   );
 
   const totalArticles = articleGroups.reduce((sum, group) => sum + group.articles.length, 0);
+  const totalCandidates = articleGroups.reduce((sum, group) => sum + group.candidates.length, 0);
 
   return (
     <AppShell>
@@ -38,12 +45,19 @@ export default async function RawFeedsPage() {
           <p className="max-w-xl text-sm leading-6 text-slate-300">
             Echte kostenlose Feed-Artikel zur Quellenprüfung. Diese Ansicht ersetzt noch nicht das kuratierte Executive Dashboard.
           </p>
-          <p className="text-sm text-muted">{totalArticles} geladene Artikel</p>
+          <p className="text-sm text-muted">
+            {totalCandidates} Kandidaten aus {totalArticles} geladenen Artikeln
+          </p>
         </header>
 
         <div className="mt-7 space-y-8">
           {articleGroups.map((group) => (
-            <RawFeedSection articles={group.articles} category={group.category} key={group.category} />
+            <RawFeedSection
+              articles={group.articles}
+              candidates={group.candidates}
+              category={group.category}
+              key={group.category}
+            />
           ))}
         </div>
       </main>

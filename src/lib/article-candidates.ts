@@ -1,0 +1,175 @@
+import type { NewsCategory } from "@/types/news";
+import type { CandidateArticle, LiveArticle } from "@/types/source";
+
+const MAX_CANDIDATES_PER_CATEGORY = 5;
+
+type CandidateRule = {
+  terms: string[];
+  score: number;
+  reason: string;
+};
+
+const sourceScores: Record<string, { score: number; reason: string }> = {
+  "tagesschau-weltwirtschaft": { score: 14, reason: "starke Weltwirtschaftsquelle" },
+  "ecb-press": { score: 12, reason: "primäre Zentralbankquelle" },
+  "federal-reserve-press": { score: 12, reason: "primäre Zentralbankquelle" },
+  "deutschlandfunk-nachrichten": { score: 8, reason: "verlässliche Politikquelle" },
+  "tagesschau-alle-meldungen": { score: 7, reason: "breite Nachrichtenquelle" },
+  "handball-world": { score: 7, reason: "Fachquelle Handball" },
+};
+
+const categoryRules: Record<NewsCategory, CandidateRule[]> = {
+  wirtschaft: [
+    {
+      terms: ["china", "usa", "vereinigte staaten", "russland", "europa", "eurozone", "weltwirtschaft"],
+      score: 16,
+      reason: "internationaler Wirtschaftskontext",
+    },
+    {
+      terms: ["ki", "künstliche intelligenz", "artificial intelligence", "nvidia", "microsoft", "apple", "google", "amazon", "meta"],
+      score: 14,
+      reason: "KI oder großer Tech-Konzern",
+    },
+    {
+      terms: ["leitzins", "zinsentscheidung", "zinssenkung", "zinserhöhung", "interest rate", "federal funds rate"],
+      score: 20,
+      reason: "Zentralbank-Zinsentscheidung",
+    },
+    {
+      terms: ["handel", "zoll", "export", "import", "inflation", "konjunktur", "wachstum", "rezession"],
+      score: 10,
+      reason: "makroökonomische Relevanz",
+    },
+  ],
+  politik: [
+    {
+      terms: ["bundestag", "bundesregierung", "kanzler", "koalition", "minister", "regierung"],
+      score: 13,
+      reason: "bundespolitische Relevanz",
+    },
+    {
+      terms: ["eu", "europa", "nato", "ukraine", "russland", "china", "usa", "vereinigte staaten"],
+      score: 15,
+      reason: "internationale oder geopolitische Relevanz",
+    },
+    {
+      terms: ["krieg", "sanktionen", "sicherheit", "verteidigung", "migration", "haushalt"],
+      score: 10,
+      reason: "strategisches Politikthema",
+    },
+  ],
+  handball: [
+    {
+      terms: ["champions league", "ehf", "final four"],
+      score: 18,
+      reason: "internationaler Spitzenwettbewerb",
+    },
+    {
+      terms: ["abstieg", "klassenerhalt", "abstiegskampf"],
+      score: 16,
+      reason: "Abstiegskampf",
+    },
+    {
+      terms: ["füchse", "berlin", "magdeburg", "flensburg", "kiel", "thw", "melsungen", "gidsel"],
+      score: 13,
+      reason: "Topteam oder Schlüsselspieler",
+    },
+    {
+      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle"],
+      score: 9,
+      reason: "strukturelle Saisonentwicklung",
+    },
+  ],
+};
+
+const handballMatchReportTerms = [
+  "spielbericht",
+  "ticker",
+  "sieg gegen",
+  "niederlage gegen",
+  "gewann gegen",
+  "verliert gegen",
+];
+
+export function selectArticleCandidates(
+  category: NewsCategory,
+  articles: LiveArticle[],
+  limit = MAX_CANDIDATES_PER_CATEGORY,
+): CandidateArticle[] {
+  return articles
+    .map((article) => scoreArticleCandidate(category, article))
+    .filter((article) => article.candidateScore > 0)
+    .sort(sortCandidates)
+    .slice(0, limit);
+}
+
+function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): CandidateArticle {
+  const haystack = articleText(article);
+  const reasons = new Set<string>();
+  let score = 0;
+
+  const sourceScore = sourceScores[article.sourceId];
+  if (sourceScore) {
+    score += sourceScore.score;
+    reasons.add(sourceScore.reason);
+  }
+
+  for (const rule of categoryRules[category]) {
+    if (containsAny(haystack, rule.terms)) {
+      score += rule.score;
+      reasons.add(rule.reason);
+    }
+  }
+
+  const freshnessScore = getFreshnessScore(article.publishedAt);
+  if (freshnessScore > 0) {
+    score += freshnessScore;
+    reasons.add(freshnessScore >= 8 ? "sehr frisch" : "aktuell");
+  }
+
+  if (category === "handball" && containsAny(haystack, handballMatchReportTerms)) {
+    score -= 8;
+    reasons.add("Matchbericht-Abzug");
+  }
+
+  return {
+    ...article,
+    candidateScore: Math.max(0, score),
+    candidateReasons: Array.from(reasons),
+  };
+}
+
+function sortCandidates(a: CandidateArticle, b: CandidateArticle): number {
+  if (b.candidateScore !== a.candidateScore) {
+    return b.candidateScore - a.candidateScore;
+  }
+
+  return new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime();
+}
+
+function getFreshnessScore(publishedAt: string | undefined): number {
+  if (!publishedAt) {
+    return 0;
+  }
+
+  const ageMs = Date.now() - new Date(publishedAt).getTime();
+  const ageHours = ageMs / (1000 * 60 * 60);
+
+  if (ageHours <= 36) {
+    return 8;
+  }
+
+  if (ageHours <= 24 * 7) {
+    return 4;
+  }
+
+  return 0;
+}
+
+function articleText(article: LiveArticle): string {
+  return [article.title, article.excerpt, article.url, article.sourceName].filter(Boolean).join(" ").toLowerCase();
+}
+
+function containsAny(value: string, terms: string[]): boolean {
+  return terms.some((term) => value.includes(term));
+}
