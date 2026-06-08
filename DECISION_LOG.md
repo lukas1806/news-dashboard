@@ -399,3 +399,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 038 - Keep Raw Review Reset State Consistent
+
+Decision:
+
+The `/raw` review reset must clear both browser storage and all in-memory category review state.
+
+Reason:
+
+The review workflow depends on clean rounds. A bug allowed old ratings to be written back after reset when a category component still held stale React state and the user marked a new card.
+
+Tradeoff:
+
+The review tool remains browser-local and intentionally does not persist historical review sessions.
+
+Consequence:
+
+`RawFeedSection` listens for review update events and reloads current storage state. It also reads current `localStorage` before saving a new rating. `RawReviewSummary` clears its own state immediately on reset. A reset round now exports only ratings added after the reset.
+
+Status:
+
+active

@@ -269,6 +269,8 @@ Raw review controls:
 - No database, server write, user account, AI, or persistent backend state is involved.
 - The review summary can be copied and pasted into the tuning chat.
 - `Raus ausblenden` and `Review-Sortierung` are local inspection tools only.
+- `Zurücksetzen` must fully clear the review state across the summary and all category sections before a new review round starts.
+- After reset, the next rating must export only the new review round and must not reintroduce ratings from a previous round.
 
 ## Reliability Rules
 
