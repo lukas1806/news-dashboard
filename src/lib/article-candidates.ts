@@ -11,6 +11,8 @@ type CandidateRule = {
 
 const sourceScores: Record<string, { score: number; reason: string }> = {
   "tagesschau-weltwirtschaft": { score: 14, reason: "starke Weltwirtschaftsquelle" },
+  "tagesschau-finanzen": { score: 12, reason: "starke Finanzmarktquelle" },
+  "tagesschau-technologie": { score: 12, reason: "starke Technologiequelle" },
   "ecb-press": { score: 12, reason: "primäre Zentralbankquelle" },
   "federal-reserve-press": { score: 12, reason: "primäre Zentralbankquelle" },
   "deutschlandfunk-nachrichten": { score: 8, reason: "verlässliche Politikquelle" },
@@ -26,9 +28,30 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "internationaler Wirtschaftskontext",
     },
     {
-      terms: ["ki", "künstliche intelligenz", "artificial intelligence", "nvidia", "microsoft", "apple", "google", "amazon", "meta"],
-      score: 14,
+      terms: [
+        "ki",
+        "künstliche intelligenz",
+        "artificial intelligence",
+        "chip",
+        "chips",
+        "halbleiter",
+        "nvidia",
+        "microsoft",
+        "apple",
+        "google",
+        "alphabet",
+        "amazon",
+        "meta",
+        "openai",
+        "tesla",
+      ],
+      score: 18,
       reason: "KI oder großer Tech-Konzern",
+    },
+    {
+      terms: ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "börsen", "anleger", "tech-aktien", "chip-rally"],
+      score: 16,
+      reason: "Aktien- oder Börsenrelevanz",
     },
     {
       terms: ["leitzins", "zinsentscheidung", "zinssenkung", "zinserhöhung", "interest rate", "federal funds rate"],
@@ -95,7 +118,7 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "Topteam oder Schlüsselspieler",
     },
     {
-      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle", "jicha", "europapokal", "restart", "totalschaden"],
+      terms: ["saison", "lizenz", "wechsel", "trainer", "kader", "tabelle", "jicha", "europapokal", "restart", "totalschaden", "siewert", "parrondo"],
       score: 13,
       reason: "strukturelle Saisonentwicklung",
     },
@@ -105,7 +128,13 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "Ligaweite Einordnung",
     },
     {
-      terms: ["diese mannschaften spielen nächste saison", "spielt nicht im europapokal", "wollen revanche", "wie geht es in kiel mit jicha"],
+      terms: [
+        "diese mannschaften spielen nächste saison",
+        "spielt nicht im europapokal",
+        "wollen revanche",
+        "wie geht es in kiel mit jicha",
+        "siewert folgt bei melsungen",
+      ],
       score: 16,
       reason: "review-bestätigtes Handball-Topthema",
     },
@@ -334,6 +363,14 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
 function getEconomyTopicKey(haystack: string): string | undefined {
   if (containsAny(haystack, ["zoll", "zölle", "zollabkommen", "handelspartner", "handelskonflikt", "trump-zölle"])) {
     return "wirtschaft-handel-zoelle";
+  }
+
+  if (containsAny(haystack, ["ki", "künstliche intelligenz", "artificial intelligence", "openai", "nvidia", "chip", "chips", "halbleiter"])) {
+    return "wirtschaft-ki-chips";
+  }
+
+  if (containsAny(haystack, ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "anleger", "tech-aktien", "chip-rally"])) {
+    return "wirtschaft-boerse-aktien";
   }
 
   if (containsAny(haystack, ["china", "peking", "automesse", "deutsche autos", "faire wettbewerb", "wächst stärker als erwartet"])) {

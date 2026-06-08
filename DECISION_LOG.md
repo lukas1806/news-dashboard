@@ -355,3 +355,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 036 - Add Tagesschau Finance And Technology Feeds For Wirtschaft Gaps
+
+Decision:
+
+Activate Tagesschau Finanzen and Tagesschau Technologie as free Wirtschaft sources.
+
+Reason:
+
+The reviewed candidate set is now broadly good, but Wirtschaft still lacks AI, major technology-company, and larger stock-market coverage. Tagesschau provides official RSS feeds for finance and technology, which are less likely to be company-marketing content than a vendor-owned AI blog.
+
+Tradeoff:
+
+Additional active feeds can increase raw volume and may introduce duplicate market or technology stories.
+
+Consequence:
+
+`src/data/feed-sources.ts` now includes the two active Tagesschau feeds. `src/lib/article-candidates.ts` boosts AI, chips, large tech companies, stock-market, and equities terms while clustering AI/chip and stock-market topics so only one top candidate per theme is selected when enough other strong Wirtschaft topics are available.
+
+Status:
+
+active

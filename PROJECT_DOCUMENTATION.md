@@ -34,6 +34,8 @@ Phase 2 starts with public RSS feeds because they are free, simple, and availabl
 Active sources:
 
 - Tagesschau · Weltwirtschaft
+- Tagesschau · Finanzen
+- Tagesschau · Technologie
 - Europäische Zentralbank · Press
 - Federal Reserve · Press Releases
 - Tagesschau · Alle Meldungen
@@ -73,8 +75,14 @@ Candidate selection should avoid duplicate Wirtschaft stories in the top set. On
 
 Known gaps:
 
-- AI
-- major technology companies
+- AI / major technology companies are now covered experimentally through Tagesschau Technologie and need `/raw` review.
+- larger stock-market / equities news is now covered experimentally through Tagesschau Finanzen and needs `/raw` review.
+
+Newly added Wirtschaft source review points:
+
+- Tagesschau Finanzen should improve large stock-market, DAX, Nasdaq, Wall Street, and major equity coverage.
+- Tagesschau Technologie should improve AI, chip, and major technology-company coverage without relying on company-owned marketing feeds.
+- Candidate selection should still keep one market/stock item and one AI/tech item at most when other strong Wirtschaft topics are available.
 
 ECB and Fed are active sources, but their feeds are heavily filtered. Only interest-rate / policy-rate decision items should pass into review. Routine speeches, technical notices, and institutional statements are considered too noisy for the dashboard.
 
