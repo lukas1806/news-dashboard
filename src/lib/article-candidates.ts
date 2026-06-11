@@ -2,6 +2,7 @@ import type { NewsCategory } from "@/types/news";
 import type { CandidateArticle, LiveArticle } from "@/types/source";
 
 const MAX_CANDIDATES_PER_CATEGORY = 5;
+const MAX_CANDIDATE_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 
 type CandidateRule = {
   terms: string[];
@@ -52,7 +53,7 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "KI oder großer Tech-Konzern",
     },
     {
-      terms: ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "börsen", "anleger", "tech-aktien", "chip-rally", "depot"],
+      terms: ["aktien", "börse", "dax", "nasdaq", "s&p", "wall street", "marktbericht", "börsen", "anleger", "tech-aktien", "chip-rally", "depot", "ipo", "börsengang", "spacex"],
       score: 18,
       reason: "Aktien- oder Börsenrelevanz",
     },
@@ -83,6 +84,8 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
         "inflation in der eurozone steigt",
         "anthropic für weltweite ki-pause",
         "usa drohen mit zusätzlichen zöllen",
+        "warum die zinswende unvermeidlich ist",
+        "ölpreis-schock",
       ],
       score: 16,
       reason: "review-bestätigtes Wirtschaftstopthema",
@@ -110,7 +113,19 @@ const categoryRules: Record<NewsCategory, CandidateRule[]> = {
       reason: "großes Infrastrukturprojekt",
     },
     {
-      terms: ["eu überweist", "milliarden an die ukraine", "angriffswelle", "vorsichtiges aufatmen", "auftragsschwund", "nahost- und zinssorgen"],
+      terms: [
+        "eu überweist",
+        "milliarden an die ukraine",
+        "angriffswelle",
+        "vorsichtiges aufatmen",
+        "auftragsschwund",
+        "nahost- und zinssorgen",
+        "iran bezeichnet waffenruhe",
+        "britischer verteidigungsminister healey tritt zurück",
+        "neura robotics sichert sich milliardeninvestition",
+        "straße von hormus für komplett gesperrt",
+        "straße von hormus",
+      ],
       score: 14,
       reason: "review-bestätigtes Politiktopthema",
     },
@@ -185,6 +200,8 @@ const economyLowerPriorityTerms = [
   "klimafolgen",
 ];
 
+const economyStrongLowerPriorityTerms = ["marktbericht: dax schließt unverändert"];
+
 const politicsLowerPriorityTerms = [
   "digitalminister wildberger will mehr tempo",
   "ökosystem",
@@ -202,6 +219,8 @@ const politicsLowerPriorityTerms = [
   "ein toter",
   "weniger wasserverbrauch",
   "landwirtschaft",
+  "nikotinbeutel",
+  "gesundheitsminister-konferenz",
 ];
 
 export function selectArticleCandidates(
@@ -210,6 +229,7 @@ export function selectArticleCandidates(
   limit = MAX_CANDIDATES_PER_CATEGORY,
 ): CandidateArticle[] {
   const sortedCandidates = articles
+    .filter(isFreshEnoughForCandidates)
     .map((article) => scoreArticleCandidate(category, article))
     .filter((article) => article.candidateScore > 0)
     .sort(sortCandidates);
@@ -254,6 +274,11 @@ function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): Ca
   if (category === "wirtschaft" && containsAny(haystack, economyLowerPriorityTerms)) {
     score -= 10;
     reasons.add("Review-Abzug");
+  }
+
+  if (category === "wirtschaft" && containsAny(haystack, economyStrongLowerPriorityTerms)) {
+    score -= 30;
+    reasons.add("starker Review-Abzug");
   }
 
   if (category === "politik" && containsAny(haystack, politicsLowerPriorityTerms)) {
@@ -419,7 +444,15 @@ function getEconomyTopicKey(haystack: string): string | undefined {
 }
 
 function getPoliticsTopicKey(haystack: string): string | undefined {
-  if (containsAny(haystack, ["iran", "israel", "naher osten", "golf von oman", "tanker", "angriffswelle", "vorsichtiges aufatmen"])) {
+  if (containsAny(haystack, ["healey", "britischer verteidigungsminister", "premierminister starmer", "militärhaushalt"])) {
+    return "politik-grossbritannien-regierung";
+  }
+
+  if (containsAny(haystack, ["straße von hormus", "strasse von hormus", "golf von oman", "tanker", "schifffahrt", "schifffahrtsweg"])) {
+    return "politik-hormus-schifffahrt";
+  }
+
+  if (containsAny(haystack, ["iran", "israel", "naher osten", "angriffswelle", "vorsichtiges aufatmen", "waffenruhe"])) {
     return "politik-nahost-iran-israel";
   }
 
@@ -481,6 +514,20 @@ function getFreshnessScore(publishedAt: string | undefined): number {
   }
 
   return 0;
+}
+
+function isFreshEnoughForCandidates(article: LiveArticle): boolean {
+  if (!article.publishedAt) {
+    return false;
+  }
+
+  const publishedAt = new Date(article.publishedAt).getTime();
+
+  if (Number.isNaN(publishedAt)) {
+    return false;
+  }
+
+  return Date.now() - publishedAt <= MAX_CANDIDATE_AGE_MS;
 }
 
 function articleText(article: LiveArticle): string {

@@ -445,3 +445,47 @@ Consequence:
 Status:
 
 active
+
+### Decision 040 - Enforce A 72-Hour Candidate Window
+
+Decision:
+
+Only articles with a valid publication date from the last 72 hours may enter the candidate set.
+
+Reason:
+
+The preview surfaced otherwise relevant Wirtschaft articles from June 2 and June 5 on June 11. The dashboard is intended as a current briefing, so older stories should not displace recent developments.
+
+Tradeoff:
+
+A category may temporarily show fewer than 5 live candidates. The labeled mock fallback is used when no live candidates remain.
+
+Consequence:
+
+`src/lib/article-candidates.ts` applies the hard freshness rule before scoring and diversity selection. Older items remain available in `/raw` for source inspection.
+
+Status:
+
+active
+
+### Decision 041 - Treat Reuters As A Priority Source Pending Reliable Access
+
+Decision:
+
+Treat Reuters as a high-priority source for future Wirtschaft and Politik coverage, but do not activate an unofficial or unverified feed.
+
+Reason:
+
+Reuters provides important international, business, market, and technology reporting. Current public RSS endpoints tested for the project were unavailable, while direct website scraping would add reliability and reuse-term risks.
+
+Tradeoff:
+
+Some Reuters stories, such as major IPO or geopolitical developments, can remain missing from automated candidates until a permitted reliable source path is available.
+
+Consequence:
+
+Reuters examples guide topic tuning now, including major IPO/capital-market coverage. A direct Reuters integration remains source-development work and requires access and terms validation before activation.
+
+Status:
+
+active

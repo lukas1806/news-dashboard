@@ -47,8 +47,11 @@ Candidate sources:
 
 - NVIDIA Blog
 - Politico Europe
+- Reuters
 
 Candidate sources are listed but not used for the main category fetch until terms, reliability, and practical value are verified.
+
+Reuters is a high-priority future source for international politics, business, markets, and technology. It must not be integrated through guessed, unofficial, or unstable RSS endpoints. Activation requires a reliable permitted access method and a review of reuse terms; direct article links remain useful as editorial reference examples meanwhile.
 
 ## Editorial Preferences From Source Review
 
@@ -66,6 +69,7 @@ Keep or prioritize:
 - broad China growth / macro data when economically material
 - AI risk and governance items when tied to major companies or market implications
 - major equity / portfolio-risk stories, especially when linked to dollar, US risk, AI stocks, or large indices
+- major IPO and capital-market stories, including companies such as SpaceX when the market impact is material
 - Euro, dollar, inflation, and Eurozone macro signals
 
 Exclude or deprioritize:
@@ -78,6 +82,10 @@ Exclude or deprioritize:
 Candidate selection should avoid duplicate Wirtschaft stories in the top set. One tariff/trade item, one China item, or one energy/commodity item is enough when other strong topics are available.
 
 Short candidate keywords such as `KI`, `EU`, and `Öl` are matched as standalone tokens so names or longer words do not create false topic reasons.
+
+Dashboard candidates must have a valid publication date and must not be older than 72 hours. Older articles can remain visible in `/raw` for source review but cannot enter `/preview` or the candidate API.
+
+Candidate selection evaluates up to 60 filtered articles per category so relevant items are not lost behind the 20-item `/raw` display limit.
 
 Known gaps:
 
@@ -135,8 +143,10 @@ Prioritize:
 - large infrastructure projects such as Stuttgart 21
 - Ukraine funding and strategic geopolitical support
 - Middle East / Iran / Israel developments, but only once per top candidate set when stories overlap
+- Strait of Hormuz closures or shipping-security developments as a separate strategic cluster when materially relevant
 - border-control policy when nationally relevant
 - economic consequences of geopolitical conflict
+- major European technology investments with strategic industrial relevance
 
 Candidate selection should avoid duplicate Politik stories in the top set. One Middle East/Iran-Israel item is enough when other strong political topics are available.
 

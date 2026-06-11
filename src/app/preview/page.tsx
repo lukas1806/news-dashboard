@@ -36,7 +36,7 @@ export default async function PreviewPage() {
 
 async function fetchCandidates(category: NewsCategory): Promise<CandidateArticle[]> {
   try {
-    const articles = await fetchLiveArticlesByCategory(category);
+    const articles = await fetchLiveArticlesByCategory(category, 60);
     return selectArticleCandidates(category, articles, PREVIEW_LIMIT);
   } catch {
     return [];

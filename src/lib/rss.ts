@@ -42,18 +42,18 @@ const parser = new XMLParser({
   trimValues: true,
 });
 
-export async function fetchLiveArticlesByCategory(category: NewsCategory): Promise<LiveArticle[]> {
+export async function fetchLiveArticlesByCategory(category: NewsCategory, limit = 20): Promise<LiveArticle[]> {
   const sources = getActiveFeedSources().filter((source) => source.category === category);
   const settledArticleGroups = await Promise.allSettled(sources.map((source) => fetchFeedSource(source)));
   const articleGroups = settledArticleGroups.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
 
   return filterArticlesForFocus(category, articleGroups)
     .sort((a, b) => new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime())
-    .slice(0, 20);
+    .slice(0, limit);
 }
 
 export async function fetchArticleCandidatesByCategory(category: NewsCategory): Promise<CandidateArticle[]> {
-  const articles = await fetchLiveArticlesByCategory(category);
+  const articles = await fetchLiveArticlesByCategory(category, 60);
 
   return selectArticleCandidates(category, articles);
 }
