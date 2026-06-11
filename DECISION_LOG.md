@@ -421,3 +421,27 @@ Consequence:
 Status:
 
 active
+
+## 2026-06-11
+
+### Decision 039 - Add A Separate Phase-2 Candidate Dashboard Preview
+
+Decision:
+
+Add `/preview` as a small dashboard-like surface that shows at most 5 deterministic RSS candidates per category while keeping the existing Phase-1 dashboard unchanged.
+
+Reason:
+
+The candidate quality is strong enough to test a compact real-content experience, but the system does not yet create reviewed summaries or a finished Executive Briefing. A separate preview makes that boundary explicit.
+
+Tradeoff:
+
+Feed failures can leave a category without live candidates, and source excerpts are less polished than editorial summaries.
+
+Consequence:
+
+`/preview` fetches the existing free RSS sources, applies the current focus and diversity rules, and displays source metadata plus candidate reasons. If no live candidates are available for a category, it uses clearly labeled Phase-1 mock data. No AI, database, paid API, or persistence is added.
+
+Status:
+
+active

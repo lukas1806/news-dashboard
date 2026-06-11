@@ -1,6 +1,6 @@
 # Executive News Dashboard
 
-Phase-1-Demo für ein persönliches Executive News Dashboard mit begonnener Phase-2-Content-Engine.
+Phase-1-Demo für ein persönliches Executive News Dashboard mit Phase-2-Content-Engine und separater Kandidaten-Preview.
 
 ## Stack
 
@@ -43,3 +43,8 @@ Beim Import in Vercel:
 - Output Directory: leer lassen
 
 Die App enthält interne Phase-2-APIs für RSS-Quellenprüfung und Kandidatenauswahl, aber weiterhin keine Datenbank, keine KI-Integration und keine paid APIs.
+
+Interne Phase-2-Oberflächen:
+
+- `/raw` für Quellen- und Kandidatenreview
+- `/preview` für eine kompakte Vorschau mit maximal 5 Kandidaten pro Kategorie und gekennzeichnetem Mock-Fallback

@@ -4,7 +4,7 @@
 
 Phase 2: Content Engine.
 
-The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are currently introduced as a source layer and internal API only.
+The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are available through the source layer, internal APIs, `/raw`, and a separate Phase-2 candidate preview.
 
 ## Phase 2 Scope
 
@@ -17,6 +17,7 @@ Build:
 - Basic source documentation
 - Simple candidate selection from filtered raw articles
 - Browser-local raw article review controls
+- Small dashboard preview with up to 5 real candidates per category
 
 Do not build yet:
 
@@ -75,6 +76,8 @@ Exclude or deprioritize:
 - narrower Russia currency or climate-cost items when stronger macro/trade/energy candidates are available
 
 Candidate selection should avoid duplicate Wirtschaft stories in the top set. One tariff/trade item, one China item, or one energy/commodity item is enough when other strong topics are available.
+
+Short candidate keywords such as `KI`, `EU`, and `Öl` are matched as standalone tokens so names or longer words do not create false topic reasons.
 
 Known gaps:
 
@@ -246,6 +249,21 @@ This is a development and operations endpoint for validating the free feed setup
 
 ## Internal Views
 
+### `/preview`
+
+Phase-2 dashboard preview for testing the candidate layer in a compact reading surface.
+
+Rules:
+
+- shows at most 5 candidates per category
+- uses the existing deterministic RSS candidate selection
+- shows source titles, excerpts, dates, and transparent candidate reasons
+- does not generate summaries or claim to be an Executive Briefing
+- uses Phase-1 mock items as a clearly labeled fallback when a category has no available live candidates
+- adds no AI, database, paid API, or server-side persistence
+
+The existing Phase-1 dashboard remains the primary experience until the content engine can produce reviewed briefing-quality output.
+
 ### `/raw`
 
 Internal Phase-2 view for inspecting live feed articles by category.
@@ -277,4 +295,4 @@ Raw review controls:
 - Every feed request has an 8 second timeout.
 - One failing feed must not block a whole category.
 - Feed results are normalized into `LiveArticle`.
-- The dashboard remains on curated mock data until source quality is good enough.
+- The main dashboard remains on curated mock data until source quality is good enough; `/preview` may show live candidates with a labeled mock fallback.

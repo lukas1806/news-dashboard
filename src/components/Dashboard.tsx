@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { CategoryTabs } from "@/components/CategoryTabs";
 import { ModeToggle, type DashboardMode } from "@/components/ModeToggle";
 import { NewsCard } from "@/components/NewsCard";
@@ -37,6 +39,17 @@ export function Dashboard() {
           </div>
         </div>
       </header>
+
+      <Link
+        className="mt-5 flex items-center justify-between gap-4 rounded-lg border border-blue-300/25 bg-blue-300/5 p-4 transition hover:border-blue-300/45 hover:bg-blue-300/10"
+        href="/preview"
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200">Phase-2-Preview</p>
+          <p className="mt-1 text-sm leading-6 text-slate-300">Bis zu fünf echte RSS-Kandidaten pro Kategorie ansehen.</p>
+        </div>
+        <ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0 text-blue-200" />
+      </Link>
 
       <section className="-mx-4 mt-6 border-y border-line bg-canvas px-4 py-3 sm:-mx-6 sm:px-6">
         <ModeToggle mode={mode} onModeChange={setMode} />

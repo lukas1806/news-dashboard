@@ -488,5 +488,12 @@ function articleText(article: LiveArticle): string {
 }
 
 function containsAny(value: string, terms: string[]): boolean {
-  return terms.some((term) => value.includes(term));
+  return terms.some((term) => {
+    if (term.length > 2) {
+      return value.includes(term);
+    }
+
+    const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9äöüß])${escapedTerm}([^a-z0-9äöüß]|$)`).test(value);
+  });
 }
