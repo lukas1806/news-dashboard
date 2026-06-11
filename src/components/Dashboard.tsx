@@ -51,6 +51,17 @@ export function Dashboard() {
         <ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0 text-blue-200" />
       </Link>
 
+      <Link
+        className="mt-3 flex items-center justify-between gap-4 rounded-lg border border-violet-300/25 bg-violet-300/5 p-4 transition hover:border-violet-300/45 hover:bg-violet-300/10"
+        href="/briefing-preview"
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-200">Phase-3-Preview</p>
+          <p className="mt-1 text-sm leading-6 text-slate-300">Täglich erzeugte Executive Briefings mit Quellen und Unsicherheit.</p>
+        </div>
+        <ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0 text-violet-200" />
+      </Link>
+
       <section className="-mx-4 mt-6 border-y border-line bg-canvas px-4 py-3 sm:-mx-6 sm:px-6">
         <ModeToggle mode={mode} onModeChange={setMode} />
         <div className="mt-3">

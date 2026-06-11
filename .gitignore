@@ -17,6 +17,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# local briefing snapshot
+.briefing-data
+
 # typescript
 tsconfig.tsbuildinfo
 

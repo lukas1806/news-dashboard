@@ -1,6 +1,6 @@
 # Executive News Dashboard
 
-Phase-1-Demo für ein persönliches Executive News Dashboard mit Phase-2-Content-Engine und separater Kandidaten-Preview.
+Phase-1-Demo für ein persönliches Executive News Dashboard mit Phase-2-Content-Engine und separater Phase-3-Briefing-Preview.
 
 ## Stack
 
@@ -9,6 +9,8 @@ Phase-1-Demo für ein persönliches Executive News Dashboard mit Phase-2-Content
 - Tailwind CSS
 - Mockdaten
 - kostenlose RSS-Feeds für interne Phase-2-Validierung
+- OpenAI Responses API für einen täglichen Phase-3-Briefing-Lauf
+- private Vercel-Blob-Datei für den letzten erfolgreichen Snapshot
 - Dark Mode only
 - PWA Manifest
 
@@ -48,3 +50,21 @@ Interne Phase-2-Oberflächen:
 
 - `/raw` für Quellen- und Kandidatenreview
 - `/preview` für eine kompakte Vorschau mit maximal 5 Kandidaten pro Kategorie und gekennzeichnetem Mock-Fallback
+- `/briefing-preview` für täglich erzeugte KI-Briefings mit Quellen und Unsicherheitskennzeichnung
+
+## Phase-3-Konfiguration
+
+Benötigte Vercel-Umgebungsvariablen:
+
+```txt
+OPENAI_API_KEY
+OPENAI_BRIEFING_MODEL=gpt-5-mini
+BRIEFING_AI_PROVIDER=openai
+CRON_SECRET
+BLOB_READ_WRITE_TOKEN
+BRIEFING_STORAGE_DRIVER=blob
+```
+
+`vercel.json` plant den geschützten Lauf täglich um `03:00 UTC`. Für lokale Tests können `BRIEFING_AI_PROVIDER=mock` und `BRIEFING_STORAGE_DRIVER=file` verwendet werden, ohne API-Kosten zu erzeugen.
+
+Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhindert deshalb zusätzliche Modellaufrufe am selben UTC-Tag und gibt bei Cron-Wiederholungen den vorhandenen Snapshot zurück.

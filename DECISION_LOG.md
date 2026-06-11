@@ -489,3 +489,91 @@ Reuters examples guide topic tuning now, including major IPO/capital-market cove
 Status:
 
 active
+
+### Decision 042 - Start Phase 3 In A Separate Briefing Preview
+
+Decision:
+
+Add `/briefing-preview` for AI-generated executive briefings while keeping the existing dashboard unchanged.
+
+Reason:
+
+Generated text needs a dedicated quality-review period before it can replace the curated Phase-1 experience.
+
+Tradeoff:
+
+The project temporarily has separate candidate and briefing preview surfaces.
+
+Consequence:
+
+The main dashboard is not replaced until the user explicitly approves the generated briefing quality.
+
+Status:
+
+active
+
+### Decision 043 - Use One Daily Grounded OpenAI Generation Run
+
+Decision:
+
+Use deterministic candidate selection followed by one combined OpenAI request per day. Generate normally 3 and never more than 5 briefings per category.
+
+Reason:
+
+One daily request is sufficient for a morning briefing and keeps expected API cost within a small monthly budget. The model can translate English sources, synthesize multiple sources about the same event, and discard weak candidates.
+
+Tradeoff:
+
+Breaking news after the morning run is not reflected until the next day, and a single failed request affects all categories.
+
+Consequence:
+
+The default model is `gpt-5-mini`, output is limited to 8,000 tokens, there is no manual generation button, and same-day retries reuse the existing snapshot without another model request. The OpenAI project should have a budget alert near EUR 5, with the understanding that project budgets are soft thresholds rather than hard caps.
+
+Status:
+
+active
+
+### Decision 044 - Store Only The Latest Briefing In Private Vercel Blob
+
+Decision:
+
+Store the last successful briefing snapshot as one private JSON object in Vercel Blob.
+
+Reason:
+
+Phase 3 needs durable daily output but not database queries, user records, or briefing history. A single private object is the smallest reliable persistence layer for this stage.
+
+Tradeoff:
+
+There is no history or rollback beyond the currently stored snapshot.
+
+Consequence:
+
+A failed run leaves the previous successful snapshot intact. It remains visible with a warning for up to 48 hours, after which the UI hides it and shows an error state. Storage is isolated behind a module so it can later move to a database.
+
+Status:
+
+active
+
+### Decision 045 - Ground Briefing Sources Outside The Model
+
+Decision:
+
+The model returns only source article IDs. The server reconstructs source names, URLs, and publication times from the selected candidate set.
+
+Reason:
+
+Visible source attribution must not depend on model-generated URLs or names.
+
+Tradeoff:
+
+Any generated item without at least one valid candidate ID is discarded.
+
+Consequence:
+
+The stored snapshot contains only server-verified source references and transparently marks uncertainty.
+
+Status:
+
+active

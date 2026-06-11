@@ -2,9 +2,66 @@
 
 ## Current Phase
 
-Phase 2: Content Engine.
+Phase 3 preview: AI Briefing Generation, built on the Phase-2 Content Engine.
 
-The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are available through the source layer, internal APIs, `/raw`, and a separate Phase-2 candidate preview.
+The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are available through the source layer, internal APIs, `/raw`, and a separate Phase-2 candidate preview. AI-generated output is isolated in `/briefing-preview` until its quality is approved.
+
+## Phase 3 Preview Scope
+
+Build:
+
+- One automatic briefing generation run per day
+- Deterministic candidate selection before AI generation
+- One combined OpenAI request for all categories when possible
+- Normally 3 briefings per category, with an absolute maximum of 5
+- German summaries, including translation of English source material
+- Multi-source synthesis only for the same event
+- Visible sources, source publication times, uncertainty, model, and generation time
+- Private storage of the latest successful snapshot in Vercel Blob
+- Continue showing the previous snapshot when it is 24-48 hours old
+- Hide snapshots older than 48 hours and show a clear error state
+- Provider and storage interfaces that can later support Claude or another persistence layer
+
+Do not build yet:
+
+- Replacement of the main dashboard
+- Manual generation button
+- Briefing history or archive persistence
+- User accounts or per-user personalization
+- Multiple scheduled AI runs per day
+
+### Briefing Shape
+
+Each generated briefing contains:
+
+- title
+- 3-5 sentence summary
+- why it matters
+- concrete impact
+- uncertainty level and optional explanation
+- one or more verified source references
+- visible `KI-generiert` label
+
+The model may discard a candidate when the available source information is too thin or uncertain. Source names, URLs, and publication times are never accepted directly from model output; the model returns article IDs and the server reconstructs source metadata from the actual candidate set.
+
+### Cost Controls
+
+- Default model: `gpt-5-mini`, configurable through `OPENAI_BRIEFING_MODEL`
+- Exactly one scheduled endpoint call per day
+- Same-day retries return the existing snapshot without another model request
+- One combined model request for all categories
+- Maximum output: 8,000 tokens
+- Low reasoning effort for the daily writing task
+- No public or manual generation endpoint
+- Recommended OpenAI project budget alert: approximately EUR 5 per month
+
+OpenAI project budgets are soft alert thresholds and do not stop API requests after the threshold is crossed. The application therefore enforces one successful generation per UTC day, uses one combined request, low reasoning effort, and an 8,000-token output ceiling. Usage alerts should still be configured near the intended monthly limit.
+
+### Scheduling And Storage
+
+Vercel Cron calls `/api/cron/daily-briefing` at `03:00 UTC` every day. This corresponds to 04:00 in German winter time and 05:00 in German summer time. The route requires `Authorization: Bearer <CRON_SECRET>`.
+
+Production stores exactly one private object at `briefings/latest.json` in Vercel Blob and overwrites it only after a complete successful generation. Local development defaults to `.briefing-data/latest.json` when no Blob credentials are present.
 
 ## Phase 2 Scope
 
@@ -258,6 +315,17 @@ Checks all configured sources and returns:
 This is a development and operations endpoint for validating the free feed setup.
 
 ## Internal Views
+
+### `/briefing-preview`
+
+Phase-3 quality-review surface for the most recent generated briefing snapshot. It remains separate from the main dashboard until the user approves generated text quality.
+
+Display rules:
+
+- up to 24 hours old: current
+- 24-48 hours old: visible with a stale warning
+- older than 48 hours: hidden with a clear error state
+- no snapshot: setup/unavailable state
 
 ### `/preview`
 
