@@ -63,6 +63,53 @@ Vercel Cron calls `/api/cron/daily-briefing` at `03:00 UTC` every day. This corr
 
 Production stores exactly one private object at `briefings/latest.json` in Vercel Blob and overwrites it only after a complete successful generation. Local development defaults to `.briefing-data/latest.json` when no Blob credentials are present.
 
+### Production Setup Completed On 2026-06-11
+
+OpenAI configuration:
+
+- dedicated project: `news-dashboard`
+- Prototype API credits funded with USD 5
+- monthly project budget set to USD 5
+- usage alerts configured at 50% and 100%
+- project model allowlist restricted to `gpt-5-mini`
+- dedicated project API key stored only in Vercel as sensitive `OPENAI_API_KEY`
+
+The OpenAI project budget is an alerting threshold, not a hard spending cap. Application-level idempotency, the single daily schedule, the model allowlist, and the output limit are the effective cost controls.
+
+Vercel configuration:
+
+- private Blob Store: `news-dashboard-briefings-blob`
+- Blob region: Frankfurt (`fra1`)
+- Blob Store connected to the `news-dashboard` Vercel project
+- access provided through Vercel system environment variables, including `BLOB_STORE_ID`
+- system environment variable access enabled
+- production redeployed after adding the variables
+
+Manually configured for Production and Preview:
+
+- `OPENAI_API_KEY` as sensitive
+- `OPENAI_BRIEFING_MODEL=gpt-5-mini`
+- `BRIEFING_AI_PROVIDER=openai`
+- `BRIEFING_STORAGE_DRIVER=blob`
+- `CRON_SECRET` as sensitive, generated as a random 32-byte secret
+
+The connected Blob integration also exposes `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY`. The current `@vercel/blob` setup uses the connected store and does not require a manually copied `BLOB_READ_WRITE_TOKEN`. That token name remains supported by the storage selection code for legacy or local token-based setups.
+
+Secret policy:
+
+- never commit, document, log, or share secret values
+- keep `OPENAI_API_KEY` and `CRON_SECRET` marked sensitive
+- rotate a secret immediately if its value is exposed
+- do not add a public or manual production generation button
+
+First-run verification:
+
+- before the first successful cron run, `/briefing-preview` correctly shows that no briefing is available
+- after the run, `briefings/latest.json` must exist in the private Blob Store
+- the Vercel function response should report `ok: true`, generation time, model, and category counts
+- the preview must be reviewed for content quality, source grounding, publication times, German translation, and uncertainty labels
+- OpenAI Usage must be checked after the first run to establish the real daily and projected monthly cost
+
 ## Phase 2 Scope
 
 Build:

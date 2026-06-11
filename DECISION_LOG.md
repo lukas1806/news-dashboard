@@ -577,3 +577,25 @@ The stored snapshot contains only server-verified source references and transpar
 Status:
 
 active
+
+### Decision 046 - Use A Dedicated Restricted OpenAI Project And Connected Private Blob Store
+
+Decision:
+
+Run the Phase-3 preview with a dedicated OpenAI project restricted to `gpt-5-mini`, a USD 5 monthly budget alert, sensitive Vercel secrets, and a private Vercel Blob Store connected directly to the deployment project.
+
+Reason:
+
+The preview needs production credentials and durable output without broad model access, a database, publicly readable briefing files, or secret values stored in the repository. A dedicated provider project also separates usage and cost from unrelated applications.
+
+Tradeoff:
+
+OpenAI project budgets are soft thresholds rather than hard caps, and the connected Vercel Blob setup depends on Vercel system environment variables. Operations therefore still require usage monitoring and a correctly connected deployment environment.
+
+Consequence:
+
+The OpenAI project `news-dashboard` allows only `gpt-5-mini`, has a USD 5 budget with 50% and 100% alerts, and uses a dedicated API key stored as sensitive `OPENAI_API_KEY`. Vercel stores only the latest snapshot in the private Frankfurt Blob Store `news-dashboard-briefings-blob`, accessed through `BLOB_STORE_ID`. `CRON_SECRET` is a separate sensitive random 32-byte secret that authorizes the daily endpoint. Production and Preview receive the configuration, and secret values must never be committed or shared.
+
+Status:
+
+active
