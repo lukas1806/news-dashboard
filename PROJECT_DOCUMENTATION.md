@@ -135,6 +135,16 @@ Resulting guardrails:
 
 The Phase-3 preview is technically stable but not yet approved to replace the main dashboard.
 
+### First Production Cost Measurement
+
+OpenAI Usage for the `news-dashboard` project on 2026-06-13 showed:
+
+- 2 Responses API requests
+- 7,209 total tokens shown by the usage dashboard
+- approximately USD 0.01 total spend
+
+At the observed rate, one scheduled request per day would project to roughly USD 0.15-0.30 per month. This is an estimate based on the first two requests, not a guaranteed fixed cost; candidate volume, input length, output length, and model pricing can change it. The measured result is nevertheless comfortably below the target ceiling of EUR 5 per month.
+
 ## Phase 2 Scope
 
 Build:

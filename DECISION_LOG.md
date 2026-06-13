@@ -645,3 +645,25 @@ The prompt forbids combining name components or adding meta-comments, and the se
 Status:
 
 active
+
+### Decision 049 - Keep The Daily Mini-Model Run After Initial Cost Validation
+
+Decision:
+
+Retain the single daily `gpt-5-mini` generation schedule after the first production usage measurement.
+
+Reason:
+
+The first two Responses API requests used 7,209 tokens and cost approximately USD 0.01 in total, which is well below the intended monthly budget.
+
+Tradeoff:
+
+The observed cost is only an early estimate and can increase if candidate payloads, generated output, or provider pricing change.
+
+Consequence:
+
+No additional cost optimization or reduced schedule is required now. Continue monitoring OpenAI Usage during quality iteration; the current observed rate projects to approximately USD 0.15-0.30 per month for one daily request.
+
+Status:
+
+active
