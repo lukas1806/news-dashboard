@@ -80,6 +80,7 @@ OPENAI_API_KEY
 OPENAI_BRIEFING_MODEL=gpt-5-mini
 BRIEFING_AI_PROVIDER=openai
 CRON_SECRET
+BRIEFING_ADMIN_PASSWORD
 BRIEFING_STORAGE_DRIVER=blob
 ```
 
@@ -92,7 +93,7 @@ BLOB_WEBHOOK_PUBLIC_KEY
 
 Bei älteren oder manuell tokenbasierten Blob-Setups kann stattdessen `BLOB_READ_WRITE_TOKEN` vorhanden sein. Für das aktuell verbundene Vercel-Projekt ist kein manuell kopierter Blob-Token erforderlich.
 
-`OPENAI_API_KEY` und `CRON_SECRET` bleiben immer als `Sensitive` markiert. Ihre Werte dürfen weder in Git noch in Screenshots, Logs, Dokumentation oder Chatnachrichten erscheinen. `CRON_SECRET` ist ein zufälliger 32-Byte-Wert und schützt den Generierungs-Endpunkt vor fremden oder versehentlichen Aufrufen.
+`OPENAI_API_KEY`, `CRON_SECRET` und `BRIEFING_ADMIN_PASSWORD` bleiben immer als `Sensitive` markiert. Ihre Werte dürfen weder in Git noch in Screenshots, Logs, Dokumentation oder Chatnachrichten erscheinen. `CRON_SECRET` schützt den automatischen Generierungs-Endpunkt; das separate Admin-Passwort schützt manuelle Testläufe.
 
 ### Täglicher Lauf
 
@@ -111,3 +112,16 @@ Checkliste für den ersten Produktionslauf:
 Für lokale Tests können `BRIEFING_AI_PROVIDER=mock` und `BRIEFING_STORAGE_DRIVER=file` verwendet werden, ohne API-Kosten zu erzeugen.
 
 Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhindert deshalb zusätzliche Modellaufrufe am selben UTC-Tag und gibt bei Cron-Wiederholungen den vorhandenen Snapshot zurück.
+
+### Manuelle Aktualisierung und Detailseiten
+
+`/briefing-preview` enthält einen passwortgeschützten Button für vollständige Testläufe aller drei Kategorien. Vor jedem Lauf muss ein Kostenhinweis bestätigt werden.
+
+- maximal 5 manuelle Versuche pro Berliner Kalendertag
+- keine künstliche Wartezeit zwischen den Versuchen
+- fehlgeschlagene Versuche zählen mit
+- der alte Report wird nur nach einem vollständig erfolgreichen Lauf ersetzt
+- das Passwort liegt nur in der aktuellen Browser-Sitzung in `sessionStorage`
+- der Versuchszähler liegt privat in `briefings/manual-run-state.json`
+
+Die kompakte Übersicht zeigt bis zu fünf Briefings pro Kategorie. Detailberichte sind unter `/briefing-preview/[category]/[id]` erreichbar.

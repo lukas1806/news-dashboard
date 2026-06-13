@@ -13,6 +13,7 @@ export function parseBriefingSnapshot(value: unknown): BriefingSnapshot {
     throw new Error("Invalid briefing snapshot date or categories");
   }
 
+  const generatedAt = value.generatedAt;
   const rawCategories = value.categories;
 
   const parsedCategories = Object.fromEntries(
@@ -23,19 +24,19 @@ export function parseBriefingSnapshot(value: unknown): BriefingSnapshot {
         throw new Error(`Invalid briefing items for ${id}`);
       }
 
-      return [id, items.map((item) => parseBriefingItem(id, item))];
+      return [id, items.map((item) => parseBriefingItem(id, item, generatedAt))];
     }),
   ) as Record<NewsCategory, BriefingItem[]>;
 
   return {
     version: 1,
-    generatedAt: value.generatedAt,
+    generatedAt,
     model: value.model,
     categories: parsedCategories,
   };
 }
 
-function parseBriefingItem(category: NewsCategory, value: unknown): BriefingItem {
+function parseBriefingItem(category: NewsCategory, value: unknown, snapshotGeneratedAt: string): BriefingItem {
   if (
     !isRecord(value) ||
     !isString(value.id) ||
@@ -54,9 +55,12 @@ function parseBriefingItem(category: NewsCategory, value: unknown): BriefingItem
     id: value.id,
     category,
     title: value.title,
+    teaser: isString(value.teaser) && value.teaser.trim() ? value.teaser : createLegacyTeaser(value.summary),
     summary: value.summary,
     whyImportant: value.whyImportant,
     concreteImpact: value.concreteImpact,
+    createdAt: isValidDateString(value.createdAt) ? value.createdAt : snapshotGeneratedAt,
+    relevanceScore: isValidScore(value.relevanceScore) ? value.relevanceScore : 50,
     uncertainty: value.uncertainty,
     uncertaintyNote: isString(value.uncertaintyNote) && value.uncertaintyNote ? value.uncertaintyNote : undefined,
     sources: value.sources.map((source) => {
@@ -78,6 +82,19 @@ function parseBriefingItem(category: NewsCategory, value: unknown): BriefingItem
       };
     }),
   };
+}
+
+function createLegacyTeaser(summary: string): string {
+  const firstSentence = summary.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
+  return firstSentence || summary.slice(0, 180).trim();
+}
+
+function isValidDateString(value: unknown): value is string {
+  return isString(value) && !Number.isNaN(new Date(value).getTime());
+}
+
+function isValidScore(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

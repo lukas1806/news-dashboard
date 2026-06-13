@@ -528,7 +528,7 @@ Breaking news after the morning run is not reflected until the next day, and a s
 
 Consequence:
 
-The default model is `gpt-5-mini`, output is limited to 8,000 tokens, there is no manual generation button, and same-day retries reuse the existing snapshot without another model request. The OpenAI project should have a budget alert near EUR 5, with the understanding that project budgets are soft thresholds rather than hard caps.
+The default model is `gpt-5-mini`, the initial output limit was 8,000 tokens, and same-day automatic retries reuse the existing snapshot without another model request. Decision 050 later adds protected manual review runs, and Decision 051 raises the output allowance for longer detail reports. The OpenAI project should keep a budget alert near EUR 5, with the understanding that project budgets are soft thresholds rather than hard caps.
 
 Status:
 
@@ -663,6 +663,72 @@ The observed cost is only an early estimate and can increase if candidate payloa
 Consequence:
 
 No additional cost optimization or reduced schedule is required now. Continue monitoring OpenAI Usage during quality iteration; the current observed rate projects to approximately USD 0.15-0.30 per month for one daily request.
+
+Status:
+
+active
+
+### Decision 050 - Add Password-Protected Manual Full Refreshes
+
+Decision:
+
+Add a manual refresh control to the Phase-3 preview, protected by a separate admin password and limited to five attempts per Berlin calendar day without a cooldown.
+
+Reason:
+
+Quality iteration should not require waiting for the next morning cron run, while an unprotected endpoint would allow external callers to create avoidable OpenAI cost.
+
+Tradeoff:
+
+The application gains a second private Blob object and a small authentication surface. Failed attempts consume one daily slot even when no new report is saved.
+
+Consequence:
+
+`BRIEFING_ADMIN_PASSWORD` is stored as a sensitive Vercel variable. The client keeps it only in session storage, all categories refresh together, the previous report stays visible during generation, and any failure discards the complete new report. The private attempt state is stored at `briefings/manual-run-state.json`.
+
+Status:
+
+active
+
+### Decision 051 - Separate Scan Cards From Detailed Briefing Routes
+
+Decision:
+
+Show up to five compact cards per category and move the full content to dedicated `/briefing-preview/[category]/[id]` routes.
+
+Reason:
+
+Fifteen full reports cannot be scanned in 2-3 minutes. Short cards preserve overview speed while individual reports can become more substantial.
+
+Tradeoff:
+
+Reading a full item requires one additional navigation step, and stored items need stable IDs, teasers, creation times, and relevance scores.
+
+Consequence:
+
+Detail reports target approximately 250-450 German words. Navigation uses browser history with a fallback to the preview root so it continues to work as an iPhone home-screen web app. The main dashboard remains unchanged until explicit quality approval.
+
+Status:
+
+active
+
+### Decision 052 - Do Not Activate Reuters Without A Free Permitted Access Path
+
+Decision:
+
+Keep Reuters as a priority source gap but do not scrape reuters.com, guess RSS endpoints, or pay for a discovery service within the current phase.
+
+Reason:
+
+Reuters Connect is the official content marketplace, but the review did not identify a documented free official general-news API or stable feed. Reliability, attribution, reuse terms, and the EUR 5 monthly budget all matter.
+
+Tradeoff:
+
+Important Reuters-exclusive or Reuters-leading stories such as major capital-market events may remain missing from automated selection.
+
+Consequence:
+
+Reuters remains inactive until a stable, free, explicitly permitted mechanism is verified. Direct Reuters links can still guide editorial review and reveal coverage gaps.
 
 Status:
 

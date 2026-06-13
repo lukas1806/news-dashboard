@@ -1,4 +1,5 @@
 import { categories } from "@/lib/news";
+import { createHash } from "node:crypto";
 import type { BriefingItem, BriefingSnapshot, BriefingUncertainty } from "@/types/briefing";
 import type { NewsCategory } from "@/types/news";
 import type { CandidateArticle } from "@/types/source";
@@ -7,6 +8,7 @@ type CandidateGroups = Record<NewsCategory, CandidateArticle[]>;
 
 type GeneratedItem = {
   title: string;
+  teaser: string;
   summary: string;
   whyImportant: string;
   concreteImpact: string;
@@ -42,11 +44,13 @@ export async function generateBriefingSnapshot(candidateGroups: CandidateGroups)
   const generated = provider === "mock" ? createMockBriefing(candidateGroups) : await generateOpenAiBriefing(candidateGroups);
   const model = provider === "mock" ? "mock-provider" : process.env.OPENAI_BRIEFING_MODEL ?? DEFAULT_MODEL;
 
+  const generatedAt = new Date().toISOString();
+
   return {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     model,
-    categories: groundGeneratedBriefing(generated, candidateGroups),
+    categories: groundGeneratedBriefing(generated, candidateGroups, generatedAt),
   };
 }
 
@@ -72,7 +76,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
         {
           role: "system",
           content:
-            "Du erstellst ein knappes deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge normalerweise 3 eigenständige Briefings pro Kategorie, aber lieber weniger als schwache, doppelte oder gemischte Meldungen; höchstens 5 nur bei klar starken und verschiedenen Themen. Jede Zusammenfassung soll 3 bis 5 informative Sätze enthalten. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
+            "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Strebe 5 eigenständige Briefings pro Kategorie an, aber erzeuge lieber weniger als schwache, doppelte oder gemischte Meldungen. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
         },
         {
           role: "user",
@@ -88,7 +92,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
         },
       },
       reasoning: { effort: "low" },
-      max_output_tokens: 8_000,
+      max_output_tokens: 14_000,
     }),
     signal: controller.signal,
   }).finally(() => clearTimeout(timeout));
@@ -103,7 +107,11 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
   return parseGeneratedBriefing(JSON.parse(outputText) as unknown);
 }
 
-function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: CandidateGroups): Record<NewsCategory, BriefingItem[]> {
+function groundGeneratedBriefing(
+  generated: GeneratedBriefing,
+  candidateGroups: CandidateGroups,
+  generatedAt: string,
+): Record<NewsCategory, BriefingItem[]> {
   return Object.fromEntries(
     categories.map(({ id: category }) => {
       const candidates = new Map(candidateGroups[category].map((candidate) => [candidate.id, candidate]));
@@ -143,8 +151,9 @@ function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: 
           return { item, sources: sourceArticles, eventKey };
         })
         .filter((item): item is GroundedGeneratedItem => item !== null)
-        .map<BriefingItem | null>(({ item, sources: sourceArticles, eventKey }, index) => {
+        .map<BriefingItem | null>(({ item, sources: sourceArticles }) => {
           const title = item.title.trim();
+          const teaser = item.teaser.trim();
           const summary = item.summary.trim();
           const whyImportant = item.whyImportant.trim();
           const concreteImpact = item.concreteImpact.trim();
@@ -155,17 +164,22 @@ function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: 
               publishedAt: article.publishedAt as string,
             }));
 
-          if (!title || !summary || !whyImportant || !concreteImpact || !sources.length) {
+          if (!title || !teaser || !summary || !whyImportant || !concreteImpact || !sources.length) {
             return null;
           }
 
+          const relevanceScore = Math.min(100, Math.max(...sourceArticles.map((article) => article.candidateScore)));
+
           return {
-            id: `${category}-${Date.now()}-${index}`,
+            id: createBriefingItemId(category, sourceArticles),
             category,
             title,
+            teaser,
             summary,
             whyImportant,
             concreteImpact,
+            createdAt: generatedAt,
+            relevanceScore,
             uncertainty: item.uncertainty,
             ...(item.uncertaintyNote.trim() ? { uncertaintyNote: item.uncertaintyNote.trim() } : {}),
             sources,
@@ -176,6 +190,12 @@ function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: 
       return [category, items];
     }),
   ) as Record<NewsCategory, BriefingItem[]>;
+}
+
+function createBriefingItemId(category: NewsCategory, sources: CandidateArticle[]): string {
+  const sourceKey = sources.map((source) => source.id).sort().join("|");
+  const digest = createHash("sha256").update(`${category}|${sourceKey}`).digest("hex").slice(0, 16);
+  return `${category}-${digest}`;
 }
 
 function getBriefingEventKey(category: NewsCategory, article: CandidateArticle): string | undefined {
@@ -220,8 +240,9 @@ function createMockBriefing(candidateGroups: CandidateGroups): GeneratedBriefing
   return Object.fromEntries(
     categories.map(({ id: category }) => [
       category,
-      candidateGroups[category].slice(0, 3).map((candidate) => ({
+      candidateGroups[category].slice(0, 5).map((candidate) => ({
         title: candidate.title,
+        teaser: candidate.excerpt?.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || candidate.title,
         summary: candidate.excerpt
           ? `${candidate.excerpt} Diese lokale Vorschau nutzt den vorhandenen Quellenauszug und noch keine KI-generierte Einordnung.`
           : "Für diese lokale Vorschau liegt nur der Quellentitel vor. Eine KI-generierte Zusammenfassung wurde nicht erzeugt.",
@@ -239,9 +260,10 @@ function createBriefingSchema() {
   const itemSchema = {
     type: "object",
     additionalProperties: false,
-    required: ["title", "summary", "whyImportant", "concreteImpact", "uncertainty", "uncertaintyNote", "sourceArticleIds"],
+    required: ["title", "teaser", "summary", "whyImportant", "concreteImpact", "uncertainty", "uncertaintyNote", "sourceArticleIds"],
     properties: {
       title: { type: "string" },
+      teaser: { type: "string" },
       summary: { type: "string" },
       whyImportant: { type: "string" },
       concreteImpact: { type: "string" },
@@ -299,6 +321,7 @@ function parseGeneratedItem(value: unknown): GeneratedItem {
   if (
     !isRecord(value) ||
     !isString(value.title) ||
+    !isString(value.teaser) ||
     !isString(value.summary) ||
     !isString(value.whyImportant) ||
     !isString(value.concreteImpact) ||
@@ -312,6 +335,7 @@ function parseGeneratedItem(value: unknown): GeneratedItem {
 
   return {
     title: value.title,
+    teaser: value.teaser,
     summary: value.summary,
     whyImportant: value.whyImportant,
     concreteImpact: value.concreteImpact,

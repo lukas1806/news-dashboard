@@ -13,7 +13,7 @@ Build:
 - One automatic briefing generation run per day
 - Deterministic candidate selection before AI generation
 - One combined OpenAI request for all categories when possible
-- Normally 3 briefings per category, with an absolute maximum of 5
+- Target 5 finished briefings per category, with fewer items when quality or source diversity is insufficient
 - German summaries, including translation of English source material
 - Multi-source synthesis only for the same event
 - Visible sources, source publication times, uncertainty, model, and generation time
@@ -25,7 +25,6 @@ Build:
 Do not build yet:
 
 - Replacement of the main dashboard
-- Manual generation button
 - Briefing history or archive persistence
 - User accounts or per-user personalization
 - Multiple scheduled AI runs per day
@@ -35,11 +34,13 @@ Do not build yet:
 Each generated briefing contains:
 
 - title
-- 3-5 sentence summary
-- why it matters
-- concrete impact
+- one-sentence overview teaser
+- 6-9 sentence description
+- 2-3 sentences explaining why it matters
+- 2-3 sentences describing concrete impact
 - uncertainty level and optional explanation
 - one or more verified source references
+- item creation time and estimated reading time
 - visible `KI-generiert` label
 
 The model may discard a candidate when the available source information is too thin or uncertain. Source names, URLs, and publication times are never accepted directly from model output; the model returns article IDs and the server reconstructs source metadata from the actual candidate set.
@@ -50,18 +51,18 @@ The model may discard a candidate when the available source information is too t
 - Exactly one scheduled endpoint call per day
 - Same-day retries return the existing snapshot without another model request
 - One combined model request for all categories
-- Maximum output: 8,000 tokens
+- Maximum output: 14,000 tokens for up to 15 detailed reports
 - Low reasoning effort for the daily writing task
-- No public or manual generation endpoint
+- Password-protected manual review endpoint with 5 attempts per Berlin calendar day
 - Recommended OpenAI project budget alert: approximately EUR 5 per month
 
-OpenAI project budgets are soft alert thresholds and do not stop API requests after the threshold is crossed. The application therefore enforces one successful generation per UTC day, uses one combined request, low reasoning effort, and an 8,000-token output ceiling. Usage alerts should still be configured near the intended monthly limit.
+OpenAI project budgets are soft alert thresholds and do not stop API requests after the threshold is crossed. The application therefore keeps one automatic request per UTC day, uses one combined request and low reasoning effort, and limits manual review runs to five attempts per Berlin calendar day. Usage alerts should still be configured near the intended monthly limit.
 
 ### Scheduling And Storage
 
 Vercel Cron calls `/api/cron/daily-briefing` at `03:00 UTC` every day. This corresponds to 04:00 in German winter time and 05:00 in German summer time. The route requires `Authorization: Bearer <CRON_SECRET>`.
 
-Production stores exactly one private object at `briefings/latest.json` in Vercel Blob and overwrites it only after a complete successful generation. Local development defaults to `.briefing-data/latest.json` when no Blob credentials are present.
+Production stores the current report privately at `briefings/latest.json` and the manual daily attempt counter at `briefings/manual-run-state.json` in Vercel Blob. The report is overwritten only after a complete successful generation. Local development uses equivalent files below `.briefing-data/` when no Blob credentials are present.
 
 ### Production Setup Completed On 2026-06-11
 
@@ -92,15 +93,16 @@ Manually configured for Production and Preview:
 - `BRIEFING_AI_PROVIDER=openai`
 - `BRIEFING_STORAGE_DRIVER=blob`
 - `CRON_SECRET` as sensitive, generated as a random 32-byte secret
+- `BRIEFING_ADMIN_PASSWORD` as sensitive for manual review runs
 
 The connected Blob integration also exposes `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY`. The current `@vercel/blob` setup uses the connected store and does not require a manually copied `BLOB_READ_WRITE_TOKEN`. That token name remains supported by the storage selection code for legacy or local token-based setups.
 
 Secret policy:
 
 - never commit, document, log, or share secret values
-- keep `OPENAI_API_KEY` and `CRON_SECRET` marked sensitive
+- keep `OPENAI_API_KEY`, `CRON_SECRET`, and `BRIEFING_ADMIN_PASSWORD` marked sensitive
 - rotate a secret immediately if its value is exposed
-- do not add a public or manual production generation button
+- do not expose an unprotected production generation endpoint; manual runs require the separate admin password, explicit confirmation, and daily attempt limit
 
 First-run verification:
 
@@ -144,6 +146,38 @@ OpenAI Usage for the `news-dashboard` project on 2026-06-13 showed:
 - approximately USD 0.01 total spend
 
 At the observed rate, one scheduled request per day would project to roughly USD 0.15-0.30 per month. This is an estimate based on the first two requests, not a guaranteed fixed cost; candidate volume, input length, output length, and model pricing can change it. The measured result is nevertheless comfortably below the target ceiling of EUR 5 per month.
+
+The detailed 5-item target can use more output tokens than the first measurement. Costs must be checked again after the first production run with the longer format.
+
+### Manual Review Runs And Detail Navigation
+
+The Phase-3 review surface supports complete password-protected refreshes without waiting for the next cron run.
+
+- `BRIEFING_ADMIN_PASSWORD` is a separate sensitive Vercel variable
+- the password is submitted only to `/api/briefing/manual-refresh`
+- successful browser authentication is remembered only in `sessionStorage` for the current web-app session
+- every attempt, including a failed generation, counts toward the daily limit of 5
+- the private state file is `briefings/manual-run-state.json`
+- no cooldown is imposed between attempts
+- all three categories are generated in one request
+- any failure discards the complete new report while preserving the last successful snapshot
+- manual refresh remains available even when the visible report has expired
+
+Automatic and manual runs merge new output with still-useful items from the previous 48 hours. Retained events keep their original `createdAt`; known low-quality legacy market reports, malformed names, duplicate clusters, and high-uncertainty single-source political claims are not retained.
+
+The overview is designed for a 2-3 minute scan and shows compact cards with title, teaser, source, publication time, uncertainty, and reading time. Each card opens `/briefing-preview/[category]/[id]`. The detail view contains the description, why it matters, concrete impact, uncertainty, and sources, with a web-app-friendly back action.
+
+### Reuters Access Review On 2026-06-13
+
+Reuters remains a high-priority editorial source, but it is not activated yet.
+
+- Reuters Connect is the official content marketplace and delivery platform: https://www.reutersagency.com/en/platforms/reuters-connect/
+- no documented free official Reuters news API or stable free official general-news RSS feed was verified
+- direct Reuters website scraping is not accepted as a durable source because of reliability and reuse-term risk
+- unofficial or guessed RSS endpoints remain prohibited
+- paid discovery services remain outside the EUR 5 monthly budget
+
+Reuters may be activated only after a stable, free, explicitly permitted discovery or feed mechanism is verified. Until then, direct Reuters links remain editorial reference examples and source-gap indicators.
 
 ## Phase 2 Scope
 
@@ -408,6 +442,8 @@ Display rules:
 - 24-48 hours old: visible with a stale warning
 - older than 48 hours: hidden with a clear error state
 - no snapshot: setup/unavailable state
+- manual refresh remains visible in every state
+- compact cards link to dedicated detail routes
 
 ### `/preview`
 

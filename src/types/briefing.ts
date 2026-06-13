@@ -13,9 +13,12 @@ export type BriefingItem = {
   id: string;
   category: NewsCategory;
   title: string;
+  teaser: string;
   summary: string;
   whyImportant: string;
   concreteImpact: string;
+  createdAt: string;
+  relevanceScore: number;
   uncertainty: BriefingUncertainty;
   uncertaintyNote?: string;
   sources: BriefingSource[];
@@ -29,3 +32,8 @@ export type BriefingSnapshot = {
 };
 
 export type BriefingDisplayStatus = "fresh" | "stale" | "expired" | "unavailable";
+
+export type ManualBriefingRunState = {
+  date: string;
+  attempts: number;
+};

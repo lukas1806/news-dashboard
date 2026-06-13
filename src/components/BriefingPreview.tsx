@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, Bot, Clock3, ExternalLink } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Bot, Clock3 } from "lucide-react";
+import { BriefingManualRefresh } from "@/components/BriefingManualRefresh";
 import { CategoryTabs } from "@/components/CategoryTabs";
+import {
+  formatBriefingDateTime,
+  formatBriefingSourceTime,
+  formatBriefingUncertainty,
+  getBriefingReadingTime,
+} from "@/lib/briefing-format";
 import { categories, getCategoryLabel } from "@/lib/news";
 import type { BriefingDisplayStatus, BriefingItem, BriefingSnapshot } from "@/types/briefing";
 import type { NewsCategory } from "@/types/news";
@@ -40,14 +47,14 @@ export function BriefingPreview({
           </div>
         </div>
         <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-          Automatisch ausgewählte und verdichtete Meldungen. Diese Preview bleibt getrennt vom bestehenden Dashboard, bis die Qualität freigegeben ist.
+          Bis zu fünf priorisierte Meldungen pro Bereich. Die Übersicht ist für einen schnellen Scan gedacht; jede Kachel führt zum ausführlichen Bericht.
         </p>
 
         {snapshot ? (
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
             <span className="inline-flex items-center gap-1.5">
               <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
-              Erstellt {formatDateTime(snapshot.generatedAt)}
+              Aktualisiert {formatBriefingDateTime(snapshot.generatedAt)}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Bot aria-hidden="true" className="h-3.5 w-3.5" />
@@ -55,6 +62,10 @@ export function BriefingPreview({
             </span>
           </div>
         ) : null}
+
+        <div className="mt-5">
+          <BriefingManualRefresh />
+        </div>
       </header>
 
       <StatusNotice error={error} status={status} />
@@ -68,17 +79,17 @@ export function BriefingPreview({
           <section className="mt-5 space-y-3" aria-label="KI-Briefings">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted">Heute</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted">Nach Relevanz</p>
                 <h2 className="mt-1 text-xl font-semibold text-ink">{getCategoryLabel(selectedCategory)}</h2>
               </div>
               <p className="text-sm text-muted">{items.length} Briefings</p>
             </div>
 
             {items.length ? (
-              items.map((item) => <BriefingCard isMock={isMockSnapshot} item={item} key={item.id} />)
+              items.map((item) => <CompactBriefingCard item={item} key={item.id} />)
             ) : (
               <div className="rounded-lg border border-line bg-surface p-4 text-sm leading-6 text-slate-300">
-                Die KI hat für diese Kategorie heute keine Meldung mit ausreichender Substanz freigegeben.
+                Für diese Kategorie liegt aktuell keine Meldung mit ausreichender Substanz vor.
               </div>
             )}
           </section>
@@ -88,55 +99,35 @@ export function BriefingPreview({
   );
 }
 
-function BriefingCard({ item, isMock }: { item: BriefingItem; isMock: boolean }) {
+function CompactBriefingCard({ item }: { item: BriefingItem }) {
+  const primarySource = item.sources[0];
+  const sourceLabel = item.sources.length > 1 ? `${primarySource.name} +${item.sources.length - 1}` : primarySource.name;
+
   return (
-    <article className="rounded-lg border border-line bg-surface p-4">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-        <span className="font-semibold uppercase tracking-[0.14em]">{isMock ? "Lokaler Mock" : "KI-generiert"}</span>
-        {item.uncertainty !== "none" ? (
-          <span className="rounded-full border border-amber-300/25 bg-amber-300/5 px-2 py-0.5 text-amber-100">
-            Unsicherheit: {formatUncertainty(item.uncertainty)}
+    <Link
+      className="group block rounded-lg border border-line bg-surface p-4 transition hover:border-slate-500/60 hover:bg-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+      href={`/briefing-preview/${item.category}/${encodeURIComponent(item.id)}`}
+    >
+      <article>
+        <div className="flex items-center justify-between gap-3 text-xs text-muted">
+          <span className="truncate">{sourceLabel} · {formatBriefingSourceTime(primarySource.publishedAt)}</span>
+          {item.uncertainty !== "none" ? (
+            <span className="shrink-0 rounded-full border border-amber-300/25 bg-amber-300/5 px-2 py-0.5 text-amber-100">
+              {formatBriefingUncertainty(item.uncertainty)}
+            </span>
+          ) : null}
+        </div>
+        <h3 className="mt-3 text-lg font-semibold leading-snug text-ink sm:text-xl">{item.title}</h3>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-300">{item.teaser}</p>
+        <div className="mt-3 flex items-center justify-between text-xs text-muted">
+          <span>{getBriefingReadingTime(item)} Min Lesezeit</span>
+          <span className="inline-flex items-center gap-1 font-medium text-slate-300 transition group-hover:text-ink">
+            Details
+            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
           </span>
-        ) : null}
-      </div>
-
-      <h3 className="mt-3 text-xl font-semibold leading-snug text-ink">{item.title}</h3>
-      <p className="mt-3 text-sm leading-6 text-slate-300">{item.summary}</p>
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-md border border-line bg-canvas/50 p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Warum wichtig?</p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">{item.whyImportant}</p>
         </div>
-        <div className="rounded-md border border-line bg-canvas/50 p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Konkrete Auswirkungen</p>
-          <p className="mt-2 text-sm leading-6 text-slate-300">{item.concreteImpact}</p>
-        </div>
-      </div>
-
-      {item.uncertaintyNote ? (
-        <div className="mt-3 flex gap-2 rounded-md border border-amber-300/20 bg-amber-300/5 p-3 text-sm leading-6 text-amber-100">
-          <AlertTriangle aria-hidden="true" className="mt-1 h-4 w-4 shrink-0" />
-          {item.uncertaintyNote}
-        </div>
-      ) : null}
-
-      <ul className="mt-4 flex flex-wrap gap-2" aria-label="Quellen">
-        {item.sources.map((source) => (
-          <li key={source.articleId}>
-            <a
-              className="inline-flex items-center gap-1.5 rounded border border-line bg-panel/70 px-2.5 py-1.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-ink"
-              href={source.url}
-              rel="noreferrer"
-              target="_blank"
-            >
-              {source.name} · {formatSourceTime(source.publishedAt)}
-              <ExternalLink aria-hidden="true" className="h-3 w-3" />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </article>
+      </article>
+    </Link>
   );
 }
 
@@ -146,9 +137,9 @@ function StatusNotice({ status, error }: { status: BriefingDisplayStatus; error?
   }
 
   const messages: Record<Exclude<BriefingDisplayStatus, "fresh">, string> = {
-    stale: "Der heutige Lauf ist fehlgeschlagen oder verspätet. Das letzte erfolgreiche Briefing wird noch bis maximal 48 Stunden angezeigt.",
-    expired: "Das letzte erfolgreiche Briefing ist älter als 48 Stunden und wird nicht mehr angezeigt.",
-    unavailable: "Noch kein Briefing verfügbar. OpenAI, Vercel Blob und der geschützte Cronjob müssen für den ersten Produktionslauf eingerichtet sein.",
+    stale: "Der automatische Lauf ist fehlgeschlagen oder verspätet. Das letzte erfolgreiche Briefing wird noch bis maximal 48 Stunden angezeigt.",
+    expired: "Das letzte erfolgreiche Briefing ist älter als 48 Stunden und wird nicht mehr angezeigt. Eine manuelle Aktualisierung ist weiterhin möglich.",
+    unavailable: "Noch kein Briefing verfügbar. Eine manuelle Aktualisierung ist möglich, sobald das Admin-Passwort in Vercel eingerichtet ist.",
   };
 
   return (
@@ -160,18 +151,4 @@ function StatusNotice({ status, error }: { status: BriefingDisplayStatus; error?
       </div>
     </div>
   );
-}
-
-function formatDateTime(value: string): string {
-  return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-}
-
-function formatSourceTime(value: string): string {
-  return new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(
-    new Date(value),
-  );
-}
-
-function formatUncertainty(value: BriefingItem["uncertainty"]): string {
-  return { low: "niedrig", medium: "mittel", high: "hoch", none: "keine" }[value];
 }

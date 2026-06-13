@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateAndSaveDailyBriefing } from "@/lib/briefing-generation";
+import { categories } from "@/lib/news";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
       generated,
       generatedAt: snapshot.generatedAt,
       model: snapshot.model,
-      counts: Object.fromEntries(Object.entries(snapshot.categories).map(([category, items]) => [category, items.length])),
+      counts: Object.fromEntries(categories.map(({ id }) => [id, snapshot.categories[id].length])),
     });
   } catch (error) {
     return NextResponse.json(
