@@ -6,7 +6,7 @@ import { categories } from "@/lib/news";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const MAX_DAILY_ATTEMPTS = 5;
 

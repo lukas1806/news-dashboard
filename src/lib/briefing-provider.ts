@@ -32,6 +32,7 @@ type OpenAiResponse = {
 
 const MAX_ITEMS_PER_CATEGORY = 5;
 const DEFAULT_MODEL = "gpt-5-mini";
+const OPENAI_REQUEST_TIMEOUT_MS = 270_000;
 
 export async function generateBriefingSnapshot(candidateGroups: CandidateGroups): Promise<BriefingSnapshot> {
   const provider = process.env.BRIEFING_AI_PROVIDER ?? (process.env.NODE_ENV === "production" ? "openai" : "mock");
@@ -61,40 +62,52 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 55_000);
+  const timeout = setTimeout(() => controller.abort(), OPENAI_REQUEST_TIMEOUT_MS);
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_BRIEFING_MODEL ?? DEFAULT_MODEL,
-      input: [
-        {
-          role: "system",
-          content:
-            "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib nur dann weniger aus, wenn die Quellenlage die fehlenden Beiträge wirklich nicht trägt. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
-        },
-        {
-          role: "user",
-          content: JSON.stringify(candidateGroups),
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "daily_executive_briefing",
-          strict: true,
-          schema: createBriefingSchema(),
-        },
+  let response: Response;
+
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
-      reasoning: { effort: "low" },
-      max_output_tokens: 14_000,
-    }),
-    signal: controller.signal,
-  }).finally(() => clearTimeout(timeout));
+      body: JSON.stringify({
+        model: process.env.OPENAI_BRIEFING_MODEL ?? DEFAULT_MODEL,
+        input: [
+          {
+            role: "system",
+            content:
+              "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib nur dann weniger aus, wenn die Quellenlage die fehlenden Beiträge wirklich nicht trägt. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
+          },
+          {
+            role: "user",
+            content: JSON.stringify(candidateGroups),
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "daily_executive_briefing",
+            strict: true,
+            schema: createBriefingSchema(),
+          },
+        },
+        reasoning: { effort: "low" },
+        max_output_tokens: 14_000,
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("OpenAI hat den vollständigen Report nicht innerhalb von 270 Sekunden geliefert. Der bisherige Report bleibt erhalten.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const payload = (await response.json()) as OpenAiResponse;
 

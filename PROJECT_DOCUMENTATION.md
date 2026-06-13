@@ -167,6 +167,8 @@ Automatic and manual runs merge new output with still-useful items from the prev
 
 The briefing generator receives up to 8 diverse candidates per category while the visible candidate API remains limited to 5. This reserve lets the model target 5 finished reports even when individual candidates are rejected for weak sourcing or insufficient substance.
 
+The expanded 15-report format can take longer than one minute. Both briefing routes use the Vercel Hobby maximum of 300 seconds, while the OpenAI request aborts after 270 seconds so the route still has time to return a controlled error. The previous Blob snapshot remains unchanged on a timeout.
+
 The overview is designed for a 2-3 minute scan and shows compact cards with title, teaser, source, publication time, uncertainty, and reading time. Each card opens `/briefing-preview/[category]/[id]`. The detail view contains the description, why it matters, concrete impact, uncertainty, and sources, with a web-app-friendly back action.
 
 ### Reuters Access Review On 2026-06-13

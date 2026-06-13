@@ -87,6 +87,9 @@ export function BriefingManualRefresh() {
             <p className="mt-4 text-sm leading-6 text-slate-300">
               Dieser Lauf aktualisiert alle drei Kategorien und verursacht einen kleinen OpenAI-Verbrauch. Pro Berliner Kalendertag sind höchstens fünf manuelle Versuche möglich. Bei einem Fehler bleibt der bisherige Report vollständig erhalten.
             </p>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Die ausführliche Erzeugung kann mehrere Minuten dauern. Bitte diese Ansicht geöffnet lassen.
+            </p>
 
             <form className="mt-5 space-y-4" onSubmit={submit}>
               <label className="block text-sm font-medium text-ink" htmlFor="briefing-admin-password">

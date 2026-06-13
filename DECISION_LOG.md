@@ -755,3 +755,25 @@ Old and new reports compete by relevance and then source freshness, retained rep
 Status:
 
 active
+
+### Decision 054 - Allow Long Briefing Runs Within The Hobby Limit
+
+Decision:
+
+Set the automatic and manual briefing functions to a 300-second maximum duration and give the combined OpenAI request up to 270 seconds.
+
+Reason:
+
+The first five-item manual test was aborted by the application's original 55-second OpenAI timeout. Vercel's current official Node.js limits allow Hobby functions to run for up to 300 seconds, so the application limit was stricter than the hosting plan required.
+
+Tradeoff:
+
+A manual request may keep the browser waiting for several minutes, and unusually slow model responses still consume a daily attempt before failing.
+
+Consequence:
+
+The UI tells the reviewer to keep the page open. A request that exceeds 270 seconds returns a clear German error while leaving the previous Blob snapshot intact. The remaining 30 seconds provide time for validation, Blob storage, and the HTTP response.
+
+Status:
+
+active
