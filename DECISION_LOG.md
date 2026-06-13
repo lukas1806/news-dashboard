@@ -599,3 +599,49 @@ The OpenAI project `news-dashboard` allows only `gpt-5-mini`, has a USD 5 budget
 Status:
 
 active
+
+## 2026-06-13
+
+### Decision 047 - Enforce Briefing Diversity Before And After Generation
+
+Decision:
+
+Do not refill candidate slots with articles from an event cluster already selected, and validate generated output again for reused sources and duplicate or mixed event clusters.
+
+Reason:
+
+The first production run produced overlapping Nahost and Final4 briefings and mixed a SpaceX IPO reference into an unrelated DAX market report. Prompt instructions alone were not sufficient to preserve event boundaries.
+
+Tradeoff:
+
+Some categories may contain fewer than three briefings when the available source set lacks three strong, distinct events.
+
+Consequence:
+
+Candidate diversity remains strict, Final4 and IPO topics receive explicit event keys, source articles cannot be reused across generated items, and output that combines different known event clusters is discarded. Fewer strong items are preferred over filling the category with duplicates.
+
+Status:
+
+active
+
+### Decision 048 - Reject Weak Attributed Claims And Require Exact Names
+
+Decision:
+
+Require names to be copied exactly from source material and discard high-uncertainty political items that rely on a single attributed report when no stronger grounding is available.
+
+Reason:
+
+The first production run combined person names incorrectly and elevated a single-source military claim despite explicitly acknowledging that it lacked independent verification.
+
+Tradeoff:
+
+Some genuinely important breaking developments may be omitted until stronger reporting enters the feeds.
+
+Consequence:
+
+The prompt forbids combining name components or adding meta-comments, and the server rejects high-uncertainty single-source political claims with attribution language. The preview remains under quality review.
+
+Status:
+
+active

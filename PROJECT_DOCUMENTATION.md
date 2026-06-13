@@ -110,6 +110,31 @@ First-run verification:
 - the preview must be reviewed for content quality, source grounding, publication times, German translation, and uncertainty labels
 - OpenAI Usage must be checked after the first run to establish the real daily and projected monthly cost
 
+### First Production Review On 2026-06-13
+
+The first scheduled production run completed successfully at 05:51 German time. Vercel Blob contained `briefings/latest.json`, and `/briefing-preview` rendered three items per category with model, sources, times, and uncertainty labels.
+
+Quality findings:
+
+- the EZB rate item and US tariff item were useful and understandable
+- a low-value DAX market report incorrectly mixed the market move with a secondary SpaceX IPO topic
+- SpaceX should be a separate capital-market briefing only when a dedicated source article is available; Reuters remains the important missing source path
+- politics contained too much Middle East / Iran coverage and a weak single-source Russian military claim
+- Handball contained two overlapping Final4 items
+- the model incorrectly combined person names into `Mikkel Hansen Gidsel`
+
+Resulting guardrails:
+
+- candidate diversity is no longer relaxed merely to fill all available slots
+- daily market reports receive an additional score penalty
+- IPO / SpaceX is a separate event cluster from general stock-market reporting
+- EHF Final4 is one Handball event cluster even when articles emphasize different participating teams
+- generated items may not reuse source articles or merge different deterministic event clusters
+- high-uncertainty political claims based on one attributed report may be discarded
+- the generation prompt requires exact source names, one main event per item, no internal notes, and fewer than three items when the alternatives are weak or duplicative
+
+The Phase-3 preview is technically stable but not yet approved to replace the main dashboard.
+
 ## Phase 2 Scope
 
 Build:

@@ -17,6 +17,12 @@ type GeneratedItem = {
 
 type GeneratedBriefing = Record<NewsCategory, GeneratedItem[]>;
 
+type GroundedGeneratedItem = {
+  item: GeneratedItem;
+  sources: CandidateArticle[];
+  eventKey?: string;
+};
+
 type OpenAiResponse = {
   output_text?: string;
   output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
@@ -66,7 +72,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
         {
           role: "system",
           content:
-            "Du erstellst ein knappes deutsches Executive News Briefing. Nutze ausschließlich die gelieferten Artikel. Erfinde keine Fakten oder Quellen. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe Ereignis behandeln. Verwirf Kandidaten mit zu wenig Substanz. Erzeuge normalerweise 3 eigenständige Briefings pro Kategorie und höchstens 5, wenn weitere Themen klar stark und voneinander verschieden sind. Jede Zusammenfassung soll 3 bis 5 informative Sätze enthalten. Markiere Unsicherheit transparent.",
+            "Du erstellst ein knappes deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge normalerweise 3 eigenständige Briefings pro Kategorie, aber lieber weniger als schwache, doppelte oder gemischte Meldungen; höchstens 5 nur bei klar starken und verschiedenen Themen. Jede Zusammenfassung soll 3 bis 5 informative Sätze enthalten. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
         },
         {
           role: "user",
@@ -101,17 +107,48 @@ function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: 
   return Object.fromEntries(
     categories.map(({ id: category }) => {
       const candidates = new Map(candidateGroups[category].map((candidate) => [candidate.id, candidate]));
+      const usedSourceIds = new Set<string>();
+      const usedEventKeys = new Set<string>();
       const items = generated[category]
         .slice(0, MAX_ITEMS_PER_CATEGORY)
-        .map<BriefingItem | null>((item, index) => {
+        .map<GroundedGeneratedItem | null>((item) => {
+          const sourceArticles = Array.from(new Set(item.sourceArticleIds))
+            .map((articleId) => candidates.get(articleId))
+            .filter((article): article is CandidateArticle => Boolean(article?.publishedAt));
+          const eventKeys = new Set(sourceArticles.map((article) => getBriefingEventKey(category, article)).filter(Boolean));
+
+          if (
+            !sourceArticles.length ||
+            sourceArticles.some((source) => usedSourceIds.has(source.id)) ||
+            eventKeys.size > 1 ||
+            shouldRejectWeakClaim(category, item, sourceArticles)
+          ) {
+            return null;
+          }
+
+          const eventKey = Array.from(eventKeys)[0];
+          if (eventKey && usedEventKeys.has(eventKey)) {
+            return null;
+          }
+
+          if (!item.title.trim() || !item.summary.trim() || !item.whyImportant.trim() || !item.concreteImpact.trim()) {
+            return null;
+          }
+
+          sourceArticles.forEach((source) => usedSourceIds.add(source.id));
+          if (eventKey) {
+            usedEventKeys.add(eventKey);
+          }
+
+          return { item, sources: sourceArticles, eventKey };
+        })
+        .filter((item): item is GroundedGeneratedItem => item !== null)
+        .map<BriefingItem | null>(({ item, sources: sourceArticles, eventKey }, index) => {
           const title = item.title.trim();
           const summary = item.summary.trim();
           const whyImportant = item.whyImportant.trim();
           const concreteImpact = item.concreteImpact.trim();
-          const sources = Array.from(new Set(item.sourceArticleIds))
-            .map((articleId) => candidates.get(articleId))
-            .filter((article): article is CandidateArticle => Boolean(article?.publishedAt))
-            .map((article) => ({
+          const sources = sourceArticles.map((article) => ({
               articleId: article.id,
               name: article.sourceName,
               url: article.url,
@@ -139,6 +176,44 @@ function groundGeneratedBriefing(generated: GeneratedBriefing, candidateGroups: 
       return [category, items];
     }),
   ) as Record<NewsCategory, BriefingItem[]>;
+}
+
+function getBriefingEventKey(category: NewsCategory, article: CandidateArticle): string | undefined {
+  const text = [article.title, article.excerpt].filter(Boolean).join(" ").toLowerCase();
+  const title = article.title.toLowerCase();
+
+  if (category === "wirtschaft") {
+    if (containsAny(title, ["ipo", "börsengang", "spacex"])) return "wirtschaft-ipo";
+    if (containsAny(text, ["zoll", "zölle", "handelskonflikt"])) return "wirtschaft-zoelle";
+    if (containsAny(text, ["leitzins", "zinswende", "zinserhöhung", "zinssenkung", "ezb"])) return "wirtschaft-zinsen";
+    if (containsAny(text, ["marktbericht", "dax", "wall street", "börsen"])) return "wirtschaft-marktbericht";
+  }
+
+  if (category === "politik") {
+    if (containsAny(text, ["straße von hormus", "strasse von hormus", "golf von oman", "schifffahrt"])) return "politik-hormus";
+    if (containsAny(text, ["iran", "israel", "nahost", "waffenruhe", "friedensabkommen"])) return "politik-nahost";
+    if (containsAny(text, ["ukraine", "russland", "russisch", "drohnen"])) return "politik-ukraine-russland";
+  }
+
+  if (category === "handball") {
+    if (containsAny(text, ["final4", "final four", "lanxess arena"])) return "handball-final4";
+    if (containsAny(text, ["torschützenliste", "top-torschützen", "top-torhüter", "statistik"])) return "handball-statistik";
+  }
+
+  return undefined;
+}
+
+function shouldRejectWeakClaim(category: NewsCategory, item: GeneratedItem, sources: CandidateArticle[]): boolean {
+  if (category !== "politik" || item.uncertainty !== "high" || sources.length !== 1) {
+    return false;
+  }
+
+  const text = [sources[0].title, sources[0].excerpt].filter(Boolean).join(" ").toLowerCase();
+  return containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]);
+}
+
+function containsAny(value: string, terms: string[]): boolean {
+  return terms.some((term) => value.includes(term));
 }
 
 function createMockBriefing(candidateGroups: CandidateGroups): GeneratedBriefing {

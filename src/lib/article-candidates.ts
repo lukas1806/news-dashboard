@@ -202,6 +202,8 @@ const economyLowerPriorityTerms = [
 
 const economyStrongLowerPriorityTerms = ["marktbericht: dax schließt unverändert"];
 
+const economyMarketReportTerms = ["marktbericht", "dax schließt", "dax legt zu", "dax gibt nach"];
+
 const politicsLowerPriorityTerms = [
   "digitalminister wildberger will mehr tempo",
   "ökosystem",
@@ -221,6 +223,8 @@ const politicsLowerPriorityTerms = [
   "landwirtschaft",
   "nikotinbeutel",
   "gesundheitsminister-konferenz",
+  "russland meldet abschuss",
+  "russisches verteidigungsministerium berichtet",
 ];
 
 export function selectArticleCandidates(
@@ -281,6 +285,11 @@ function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): Ca
     reasons.add("starker Review-Abzug");
   }
 
+  if (category === "wirtschaft" && containsAny(haystack, economyMarketReportTerms)) {
+    score -= 12;
+    reasons.add("Marktbericht-Abzug");
+  }
+
   if (category === "politik" && containsAny(haystack, politicsLowerPriorityTerms)) {
     score -= 12;
     reasons.add("Review-Abzug");
@@ -326,22 +335,6 @@ function selectDiverseCandidates(category: NewsCategory, candidates: CandidateAr
     }
   }
 
-  for (const candidate of candidates) {
-    const titleKey = createTitleKey(candidate.title);
-
-    if (selectedIds.has(candidate.id) || selectedTitleKeys.has(titleKey)) {
-      continue;
-    }
-
-    selected.push(candidate);
-    selectedIds.add(candidate.id);
-    selectedTitleKeys.add(titleKey);
-
-    if (selected.length >= limit) {
-      return selected;
-    }
-  }
-
   return selected;
 }
 
@@ -365,6 +358,10 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
   const haystack = articleText(article);
 
   if (category === "wirtschaft") {
+    if (containsAny(article.title.toLowerCase(), ["ipo", "börsengang", "spacex", "initial public offering"])) {
+      return "wirtschaft-ipo-kapitalmarkt";
+    }
+
     return getEconomyTopicKey(haystack);
   }
 
@@ -374,6 +371,10 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
 
   if (category !== "handball") {
     return undefined;
+  }
+
+  if (containsAny(haystack, ["final4", "final four", "ehf final4", "lanxess arena"])) {
+    return "handball-ehf-final4";
   }
 
   if (containsAny(haystack, ["statistiken", "top-torschützen", "top-torhüter", "ewige hbl-torschützenliste"])) {
