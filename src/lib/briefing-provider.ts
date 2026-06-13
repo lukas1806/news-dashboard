@@ -22,7 +22,6 @@ type GeneratedBriefing = Record<NewsCategory, GeneratedItem[]>;
 type GroundedGeneratedItem = {
   item: GeneratedItem;
   sources: CandidateArticle[];
-  eventKey?: string;
 };
 
 type OpenAiResponse = {
@@ -76,7 +75,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
         {
           role: "system",
           content:
-            "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Strebe 5 eigenständige Briefings pro Kategorie an, aber erzeuge lieber weniger als schwache, doppelte oder gemischte Meldungen. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
+            "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib nur dann weniger aus, wenn die Quellenlage die fehlenden Beiträge wirklich nicht trägt. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
         },
         {
           role: "user",
@@ -116,26 +115,18 @@ function groundGeneratedBriefing(
     categories.map(({ id: category }) => {
       const candidates = new Map(candidateGroups[category].map((candidate) => [candidate.id, candidate]));
       const usedSourceIds = new Set<string>();
-      const usedEventKeys = new Set<string>();
       const items = generated[category]
         .slice(0, MAX_ITEMS_PER_CATEGORY)
         .map<GroundedGeneratedItem | null>((item) => {
           const sourceArticles = Array.from(new Set(item.sourceArticleIds))
             .map((articleId) => candidates.get(articleId))
             .filter((article): article is CandidateArticle => Boolean(article?.publishedAt));
-          const eventKeys = new Set(sourceArticles.map((article) => getBriefingEventKey(category, article)).filter(Boolean));
 
           if (
             !sourceArticles.length ||
             sourceArticles.some((source) => usedSourceIds.has(source.id)) ||
-            eventKeys.size > 1 ||
             shouldRejectWeakClaim(category, item, sourceArticles)
           ) {
-            return null;
-          }
-
-          const eventKey = Array.from(eventKeys)[0];
-          if (eventKey && usedEventKeys.has(eventKey)) {
             return null;
           }
 
@@ -144,11 +135,8 @@ function groundGeneratedBriefing(
           }
 
           sourceArticles.forEach((source) => usedSourceIds.add(source.id));
-          if (eventKey) {
-            usedEventKeys.add(eventKey);
-          }
 
-          return { item, sources: sourceArticles, eventKey };
+          return { item, sources: sourceArticles };
         })
         .filter((item): item is GroundedGeneratedItem => item !== null)
         .map<BriefingItem | null>(({ item, sources: sourceArticles }) => {
@@ -196,31 +184,6 @@ function createBriefingItemId(category: NewsCategory, sources: CandidateArticle[
   const sourceKey = sources.map((source) => source.id).sort().join("|");
   const digest = createHash("sha256").update(`${category}|${sourceKey}`).digest("hex").slice(0, 16);
   return `${category}-${digest}`;
-}
-
-function getBriefingEventKey(category: NewsCategory, article: CandidateArticle): string | undefined {
-  const text = [article.title, article.excerpt].filter(Boolean).join(" ").toLowerCase();
-  const title = article.title.toLowerCase();
-
-  if (category === "wirtschaft") {
-    if (containsAny(title, ["ipo", "börsengang", "spacex"])) return "wirtschaft-ipo";
-    if (containsAny(text, ["zoll", "zölle", "handelskonflikt"])) return "wirtschaft-zoelle";
-    if (containsAny(text, ["leitzins", "zinswende", "zinserhöhung", "zinssenkung", "ezb"])) return "wirtschaft-zinsen";
-    if (containsAny(text, ["marktbericht", "dax", "wall street", "börsen"])) return "wirtschaft-marktbericht";
-  }
-
-  if (category === "politik") {
-    if (containsAny(text, ["straße von hormus", "strasse von hormus", "golf von oman", "schifffahrt"])) return "politik-hormus";
-    if (containsAny(text, ["iran", "israel", "nahost", "waffenruhe", "friedensabkommen"])) return "politik-nahost";
-    if (containsAny(text, ["ukraine", "russland", "russisch", "drohnen"])) return "politik-ukraine-russland";
-  }
-
-  if (category === "handball") {
-    if (containsAny(text, ["final4", "final four", "lanxess arena"])) return "handball-final4";
-    if (containsAny(text, ["torschützenliste", "top-torschützen", "top-torhüter", "statistik"])) return "handball-statistik";
-  }
-
-  return undefined;
 }
 
 function shouldRejectWeakClaim(category: NewsCategory, item: GeneratedItem, sources: CandidateArticle[]): boolean {

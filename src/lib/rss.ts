@@ -52,10 +52,10 @@ export async function fetchLiveArticlesByCategory(category: NewsCategory, limit 
     .slice(0, limit);
 }
 
-export async function fetchArticleCandidatesByCategory(category: NewsCategory): Promise<CandidateArticle[]> {
+export async function fetchArticleCandidatesByCategory(category: NewsCategory, limit?: number): Promise<CandidateArticle[]> {
   const articles = await fetchLiveArticlesByCategory(category, 60);
 
-  return selectArticleCandidates(category, articles);
+  return selectArticleCandidates(category, articles, limit);
 }
 
 export async function fetchFeedSource(source: FeedSource): Promise<LiveArticle[]> {

@@ -8,6 +8,7 @@ import type { CandidateArticle } from "@/types/source";
 
 const RETAINED_ITEM_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const MAX_ITEMS_PER_CATEGORY = 5;
+const BRIEFING_CANDIDATE_POOL_SIZE = 8;
 
 export async function generateAndSaveDailyBriefing({ force = false }: { force?: boolean } = {}) {
   const existingSnapshot = await loadBriefingSnapshot();
@@ -17,7 +18,7 @@ export async function generateAndSaveDailyBriefing({ force = false }: { force?: 
   }
 
   const entries = await Promise.all(
-    categories.map(async ({ id }) => [id, await fetchArticleCandidatesByCategory(id)] as const),
+    categories.map(async ({ id }) => [id, await fetchArticleCandidatesByCategory(id, BRIEFING_CANDIDATE_POOL_SIZE)] as const),
   );
   const candidateGroups = Object.fromEntries(entries) as Record<NewsCategory, CandidateArticle[]>;
   const generatedSnapshot = await generateBriefingSnapshot(candidateGroups);
@@ -61,9 +62,7 @@ function itemsOverlap(a: BriefingItem, b: BriefingItem): boolean {
     return true;
   }
 
-  const aTopic = getBriefingItemTopicKey(a);
-  const bTopic = getBriefingItemTopicKey(b);
-  return normalizeTitle(a.title) === normalizeTitle(b.title) || Boolean(aTopic && aTopic === bTopic);
+  return titlesAreNearDuplicates(a.title, b.title);
 }
 
 function isRetainableItem(item: BriefingItem): boolean {
@@ -80,33 +79,6 @@ function isRetainableItem(item: BriefingItem): boolean {
   return !(item.category === "politik" && item.uncertainty === "high" && item.sources.length === 1);
 }
 
-function getBriefingItemTopicKey(item: BriefingItem): string | undefined {
-  const text = [item.title, item.teaser, item.summary].join(" ").toLowerCase();
-
-  if (item.category === "wirtschaft") {
-    if (containsAny(text, ["spacex", "börsengang", " ipo "])) return "wirtschaft-ipo";
-    if (containsAny(text, ["zoll", "zölle", "handelskonflikt"])) return "wirtschaft-zoelle";
-    if (containsAny(text, ["ezb", "leitzins", "zinswende"])) return "wirtschaft-zinsen";
-  }
-
-  if (item.category === "politik") {
-    if (containsAny(text, ["straße von hormus", "strasse von hormus", "golf von oman"])) return "politik-hormus";
-    if (containsAny(text, ["iran", "israel", "nahost", "waffenruhe", "friedensabkommen"])) return "politik-nahost";
-    if (containsAny(text, ["ukraine", "russland", "russisch", "drohnen"])) return "politik-ukraine-russland";
-  }
-
-  if (item.category === "handball") {
-    if (containsAny(text, ["final4", "final four", "lanxess arena"])) return "handball-final4";
-    if (containsAny(text, ["torschützenliste", "top-torschützen", "top-torhüter"])) return "handball-statistik";
-  }
-
-  return undefined;
-}
-
-function containsAny(value: string, terms: string[]): boolean {
-  return terms.some((term) => value.includes(term));
-}
-
 function sortBriefingItems(a: BriefingItem, b: BriefingItem): number {
   if (b.relevanceScore !== a.relevanceScore) {
     return b.relevanceScore - a.relevanceScore;
@@ -119,8 +91,28 @@ function getLatestSourceTime(item: BriefingItem): number {
   return Math.max(...item.sources.map((source) => new Date(source.publishedAt).getTime()));
 }
 
-function normalizeTitle(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9äöüß]+/g, " ").trim();
+function titlesAreNearDuplicates(a: string, b: string): boolean {
+  const aWords = getMeaningfulTitleWords(a);
+  const bWords = getMeaningfulTitleWords(b);
+
+  if (!aWords.size || !bWords.size) {
+    return false;
+  }
+
+  const sharedWords = Array.from(aWords).filter((word) => bWords.has(word)).length;
+  return sharedWords / Math.min(aWords.size, bWords.size) >= 0.8;
+}
+
+function getMeaningfulTitleWords(value: string): Set<string> {
+  const ignoredWords = new Set(["der", "die", "das", "den", "dem", "des", "ein", "eine", "einer", "eines", "und", "oder", "mit", "für", "von", "im", "in", "auf", "zu", "nach"]);
+  return new Set(
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9äöüß]+/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length >= 3 && !ignoredWords.has(word)),
+  );
 }
 
 function isSameUtcDate(a: string, b: string): boolean {

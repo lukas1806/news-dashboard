@@ -131,9 +131,9 @@ Resulting guardrails:
 - daily market reports receive an additional score penalty
 - IPO / SpaceX is a separate event cluster from general stock-market reporting
 - EHF Final4 is one Handball event cluster even when articles emphasize different participating teams
-- generated items may not reuse source articles or merge different deterministic event clusters
+- generated items may not reuse source articles; the prompt remains responsible for merging only sources about the same concrete event
 - high-uncertainty political claims based on one attributed report may be discarded
-- the generation prompt requires exact source names, one main event per item, no internal notes, and fewer than three items when the alternatives are weak or duplicative
+- the generation prompt requires exact source names, one main event per item, no internal notes, and targets five items while permitting fewer only when the sources do not support them
 
 The Phase-3 preview is technically stable but not yet approved to replace the main dashboard.
 
@@ -163,7 +163,9 @@ The Phase-3 review surface supports complete password-protected refreshes withou
 - any failure discards the complete new report while preserving the last successful snapshot
 - manual refresh remains available even when the visible report has expired
 
-Automatic and manual runs merge new output with still-useful items from the previous 48 hours. Retained events keep their original `createdAt`; known low-quality legacy market reports, malformed names, duplicate clusters, and high-uncertainty single-source political claims are not retained.
+Automatic and manual runs merge new output with still-useful items from the previous 48 hours. Retained events keep their original `createdAt` and compete with new items by relevance, then freshness. Only shared source IDs or near-identical titles count as cross-run duplicates; broad topic labels such as Middle East or Final4 do not remove otherwise distinct reports. Known low-quality legacy market reports, malformed names, and high-uncertainty single-source political claims are not retained.
+
+The briefing generator receives up to 8 diverse candidates per category while the visible candidate API remains limited to 5. This reserve lets the model target 5 finished reports even when individual candidates are rejected for weak sourcing or insufficient substance.
 
 The overview is designed for a 2-3 minute scan and shows compact cards with title, teaser, source, publication time, uncertainty, and reading time. Each card opens `/briefing-preview/[category]/[id]`. The detail view contains the description, why it matters, concrete impact, uncertainty, and sources, with a web-app-friendly back action.
 

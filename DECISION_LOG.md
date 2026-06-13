@@ -733,3 +733,25 @@ Reuters remains inactive until a stable, free, explicitly permitted mechanism is
 Status:
 
 active
+
+### Decision 053 - Preserve Strong Reports Across Manual Refreshes
+
+Decision:
+
+Merge new output with still-valid reports from the previous 48 hours and remove cross-run duplicates only when they share a source article or have a near-identical title. Give the generator up to eight diverse candidates per category so five finished reports remain the standard target.
+
+Reason:
+
+The first manual refresh after the compact-card release reduced every category to two reports. Broad server-side event keys treated distinct stories within Middle East, Final4, interest-rate, and similar coverage areas as duplicates, then removed useful reports that should have remained in the daily selection.
+
+Tradeoff:
+
+Two genuinely related reports can coexist when they cover distinct events and use different sources. The deterministic candidate layer and model prompt still provide the first diversity and same-event grouping controls, while the larger candidate payload uses slightly more input tokens.
+
+Consequence:
+
+Old and new reports compete by relevance and then source freshness, retained reports keep their original creation time, and the final category remains capped at five. Source reuse and near-identical titles are still rejected, but broad topical similarity alone no longer shrinks the report. This decision narrows the post-generation event-cluster validation introduced by Decision 047 without relaxing candidate diversity.
+
+Status:
+
+active
