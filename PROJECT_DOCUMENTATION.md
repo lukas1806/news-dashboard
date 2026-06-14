@@ -59,6 +59,15 @@ Resulting safeguards:
 
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
+OpenAI Usage for the `news-dashboard` project after the run showed:
+
+- USD 0.08 total spend for the selected May 30-June 14 range
+- USD 0.06 aggregated spend on June 14
+- 25,649 input tokens and 28,967 output tokens on June 14
+- 8 project requests across the selected range
+
+The Usage dashboard aggregates all June 14 requests and did not expose a separate dollar amount for only the successful 16:14 manual run in the reviewed view. USD 0.06 is therefore a conservative upper bound for that run rather than an exact per-request cost. Even that upper bound would project to approximately USD 1.80 for 30 daily runs, comfortably below the intended EUR 5 monthly ceiling. Actual scheduled-only cost should be lower because the June 14 aggregate includes multiple requests made during testing.
+
 ### Controlled Promotion Plan
 
 After an explicit `Freigabe` or `Go für die Hauptseite`:
