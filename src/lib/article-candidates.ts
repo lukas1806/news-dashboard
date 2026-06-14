@@ -234,11 +234,26 @@ export function selectArticleCandidates(
 ): CandidateArticle[] {
   const sortedCandidates = articles
     .filter(isFreshEnoughForCandidates)
+    .filter((article) => isEligibleBriefingCandidate(category, article))
     .map((article) => scoreArticleCandidate(category, article))
     .filter((article) => article.candidateScore > 0)
     .sort(sortCandidates);
 
   return selectDiverseCandidates(category, sortedCandidates, limit);
+}
+
+function isEligibleBriefingCandidate(category: NewsCategory, article: LiveArticle): boolean {
+  const haystack = articleText(article);
+
+  if (category === "wirtschaft" && containsAny(haystack, economyMarketReportTerms)) {
+    return false;
+  }
+
+  if (category === "handball" && containsAny(haystack, ["youth trophy", "jugendturnier"])) {
+    return false;
+  }
+
+  return true;
 }
 
 function scoreArticleCandidate(category: NewsCategory, article: LiveArticle): CandidateArticle {

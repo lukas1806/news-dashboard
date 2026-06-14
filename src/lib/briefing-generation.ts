@@ -72,11 +72,32 @@ function isRetainableItem(item: BriefingItem): boolean {
     return false;
   }
 
-  if (text.includes("mikkel hansen gidsel") || text.includes("anmerkung: name aus artikel")) {
+  if (
+    text.includes("mikkel hansen gidsel") ||
+    text.includes("magnus gidsel") ||
+    text.includes("emil gidsel") ||
+    text.includes("anmerkung: name aus artikel")
+  ) {
     return false;
   }
 
-  return !(item.category === "politik" && item.uncertainty === "high" && item.sources.length === 1);
+  if (item.category === "handball" && (text.includes("fußball") || text.includes("fussball"))) {
+    return false;
+  }
+
+  if (item.category === "politik" && item.sources.length === 1) {
+    const uncertaintyNote = item.uncertaintyNote?.toLowerCase() ?? "";
+    if (
+      item.uncertainty === "high" ||
+      uncertaintyNote.includes("unabhängige bestätigung") ||
+      uncertaintyNote.includes("nicht unabhängig") ||
+      uncertaintyNote.includes("bestätigung fehlt")
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function sortBriefingItems(a: BriefingItem, b: BriefingItem): number {

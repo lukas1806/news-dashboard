@@ -19,9 +19,59 @@ Latest production findings:
 - the next manual attempt was aborted by the former 55-second application timeout
 - briefing functions now allow the Vercel Hobby maximum of 300 seconds and abort the OpenAI request after 270 seconds with a controlled error
 - the previous successful Blob snapshot remained intact during failed attempts, as designed
-- the longer 300-second configuration has been deployed but still requires a successful production refresh and content review
+- the longer 300-second configuration completed a manual production refresh on 2026-06-14 in approximately 90 seconds
+- the refresh produced 4 Wirtschaft, 5 Politik, and 5 Handball reports after cross-run retention
+- mobile layout and overview-to-detail back navigation worked at an iPhone-sized 390 x 844 viewport without horizontal overflow
+- content quality did not pass: a report changed Mathias Gidsel to `Emil Gidsel`, a market report mixed in a secondary IPO topic, a Handball report referred to club football, and several detail texts extrapolated unsupported consequences from short RSS excerpts
+- the main-dashboard promotion remains blocked until a corrected production run passes the full content review
 
 Do not replace the main dashboard until the production run confirms that the system normally reaches 5 useful reports per category or has a clearly justified quality-based shortage.
+
+### Second Production Review On 2026-06-14
+
+Production deployment `8YvwSfgjKgrgWYwCvybhu5udkea3` was `Ready`, assigned to `news-dashboard-blue.vercel.app`, and built from commit `defa8f3`, matching local `main` and `origin/main` before the review changes.
+
+The protected manual run completed successfully at 16:14 German time after approximately 90 seconds. It used one of the five Berlin-day manual attempts and replaced the Blob snapshot only after full generation. The resulting category counts were:
+
+- Wirtschaft: 4
+- Politik: 5
+- Handball: 5
+
+Retention worked mechanically: useful older reports kept their original creation times and competed with new reports. The new set also removed the previous duplicate pair about the same Hormuz drone event. The category count alone was not a quality pass, however.
+
+Blocking findings:
+
+- a Gidsel report invented `Emil Gidsel`; the linked source names Mathias Gidsel, while the RSS candidate supplied only the surname and another candidate supplied `Emil Bak`
+- the Wirtschaft market report again included a secondary IPO topic even though SpaceX already had a separate report
+- a Handball detail referred to German club football instead of Handball
+- several detail reports added unsupported implications about transfers, contracts, audience figures, tactics, suspensions, or market reactions that were not present in the supplied RSS title or excerpt
+- the retained single-source Hormuz military claim remained despite explicitly noting that independent confirmation was missing
+- Wirtschaft had only three fresh visible candidates, including the unsuitable market report, so five strong reports were not supported by the available source set
+
+Resulting safeguards:
+
+- generic daily market reports and Youth Trophy items are excluded before candidate scoring
+- generated full names are rejected when the exact first-name/surname combination does not occur in the assigned source title or excerpt
+- Handball output containing football terminology is rejected
+- single-source political reports that explicitly acknowledge missing independent confirmation are rejected and are not retained
+- known malformed Gidsel names, wrong-sport reports, market reports, and weak unconfirmed political reports are not retained across runs
+- the generation prompt now treats the input explicitly as RSS metadata, forbids unsupported consequences, requires surname-only wording when no first name is supplied, and targets concise 120-220 word reports instead of padding thin excerpts to 250-450 words
+
+The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
+
+### Controlled Promotion Plan
+
+After an explicit `Freigabe` or `Go für die Hauptseite`:
+
+1. Reuse the existing briefing overview at `/` instead of duplicating it.
+2. Move permanent detail URLs to `/briefing/[category]/[id]`.
+3. Add permanent redirects from `/briefing-preview/[category]/[id]` to the new detail URLs.
+4. Keep `/briefing-preview` temporarily as a redirect to `/` for saved links and installed web-app sessions.
+5. Keep `/raw` as the internal review tool and do not promote `/preview` into primary navigation.
+6. Keep the mobile bottom navigation limited to the daily briefing, internal raw review where needed, and archive.
+7. Re-test direct detail entry and back fallback in the installed iPhone home-screen web app before removing compatibility routes.
+
+No promotion route changes are part of the current quality fixes.
 
 ### Main Dashboard Promotion Checklist
 

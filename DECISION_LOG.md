@@ -799,3 +799,25 @@ Promotion requires a successful run, normally five strong reports per category, 
 Status:
 
 active
+
+### Decision 056 - Validate RSS-Grounded Names And Reject Artificially Padded Reports
+
+Decision:
+
+Treat the model input explicitly as limited RSS metadata, reject expanded person names that do not occur in the assigned source title or excerpt, exclude generic market reports and low-value Youth Trophy items before briefing generation, and prefer concise reports or category shortages over unsupported detail.
+
+Reason:
+
+The successful 2026-06-14 long production run completed within approximately 90 seconds but exposed factual and grounding failures. The model combined `Emil Bak` from one Handball candidate with the surname Gidsel from another, mixed a secondary IPO topic into a market report, referred to club football in a Handball report, and extrapolated consequences not contained in short RSS excerpts.
+
+Tradeoff:
+
+Categories, especially Wirtschaft, can show fewer than five reports when the available free feeds contain too few distinct and sufficiently detailed events. Server-side name validation is intentionally conservative and may discard an otherwise readable report when the source metadata does not contain the full name used by the model.
+
+Consequence:
+
+The prompt no longer asks the model to stretch thin RSS excerpts to 250-450 words. It targets 120-220 words, forbids unsupported operational or commercial consequences, and requires surname-only wording when no first name is supplied. Server validation rejects unsupported expanded names and wrong-sport Handball text. Retention removes known malformed names, market reports, wrong-sport output, and single-source political claims whose own uncertainty note says independent confirmation is missing. The main dashboard remains unchanged pending another production run and explicit approval.
+
+Status:
+
+active

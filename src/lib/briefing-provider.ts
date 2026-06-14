@@ -79,7 +79,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
           {
             role: "system",
             content:
-              "Du erstellst ein deutsches Executive News Briefing. Nutze ausschließlich ausdrücklich in den gelieferten Artikeln enthaltene Fakten. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse oder Quellen. Übernimm Personen- und Organisationsnamen exakt aus den Quellen; kombiniere niemals Namensbestandteile. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Marktbericht, etwa ein IPO, dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Erzeuge ein Nebenthema nur als eigenes Briefing, wenn ein gelieferter Artikel dieses Thema selbst als Hauptereignis behandelt. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz, bloße Tagesmarktberichte und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib nur dann weniger aus, wenn die Quellenlage die fehlenden Beiträge wirklich nicht trägt. Der Teaser ist genau ein kurzer, informativer Satz für die Übersicht. Die Beschreibung soll 6 bis 9 informative Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 2 bis 3 gehaltvolle Sätze umfassen. Ein vollständiger Detailbericht soll ungefähr 250 bis 450 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
+              "Du erstellst ein deutsches Executive News Briefing aus RSS-Metadaten. Nutze ausschließlich Fakten, die im Titel oder Auszug der jeweils zugeordneten Artikel ausdrücklich stehen. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse, Folgen oder Quellen. Wenn nur ein Nachname geliefert wird, verwende nur diesen Nachnamen und ergänze keinen Vornamen. Übernimm vollständige Personen- und Organisationsnamen exakt aus den zugeordneten Quellen; kombiniere niemals Namensbestandteile aus verschiedenen Artikeln. Behaupte keine Transfers, Vertragsfolgen, Sperren, Einschaltquoten, taktischen Details, Marktreaktionen oder anderen Auswirkungen, wenn sie nicht ausdrücklich im zugeordneten Titel oder Auszug stehen. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Artikel dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib weniger aus, sobald die gelieferten Fakten keinen weiteren substanziellen Bericht tragen; fülle Texte und Listen niemals künstlich auf. Der Teaser ist genau ein kurzer, informativer Satz. Die Beschreibung soll 4 bis 7 knappe, belegte Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 1 bis 2 vorsichtige Sätze umfassen und dürfen keine neuen Tatsachen behaupten. Ein Bericht soll typischerweise 120 bis 220 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
           },
           {
             role: "user",
@@ -138,7 +138,9 @@ function groundGeneratedBriefing(
           if (
             !sourceArticles.length ||
             sourceArticles.some((source) => usedSourceIds.has(source.id)) ||
-            shouldRejectWeakClaim(category, item, sourceArticles)
+            shouldRejectWeakClaim(category, item, sourceArticles) ||
+            containsUnsupportedExpandedName(item, sourceArticles) ||
+            containsWrongSport(category, item)
           ) {
             return null;
           }
@@ -200,12 +202,59 @@ function createBriefingItemId(category: NewsCategory, sources: CandidateArticle[
 }
 
 function shouldRejectWeakClaim(category: NewsCategory, item: GeneratedItem, sources: CandidateArticle[]): boolean {
-  if (category !== "politik" || item.uncertainty !== "high" || sources.length !== 1) {
+  if (category !== "politik" || sources.length !== 1) {
     return false;
   }
 
   const text = [sources[0].title, sources[0].excerpt].filter(Boolean).join(" ").toLowerCase();
-  return containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]);
+  const uncertaintyText = item.uncertaintyNote.toLowerCase();
+  const explicitlyUnconfirmed = containsAny(uncertaintyText, ["unabhängige bestätigung", "nicht unabhängig", "bestätigung fehlt"]);
+
+  return (item.uncertainty === "high" || explicitlyUnconfirmed) && containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]);
+}
+
+function containsUnsupportedExpandedName(item: GeneratedItem, sources: CandidateArticle[]): boolean {
+  const sourceText = normalizeWords(sources.flatMap((source) => [source.title, source.excerpt ?? ""]).join(" "));
+  const generatedText = [item.title, item.teaser, item.summary, item.whyImportant, item.concreteImpact].join(" ");
+  const ignoredFirstWords = new Set([
+    "der", "die", "das", "ein", "eine", "im", "nach", "vor", "trainer", "präsident", "premierminister",
+    "innenminister", "bundeskanzler", "us", "usa", "eu", "ezb", "ehf", "sg", "mt", "fc", "sc",
+  ]);
+
+  for (const match of generatedText.matchAll(/\b([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'’-]+)\s+([A-ZÄÖÜ][A-Za-zÄÖÜäöüß'’-]+)\b/g)) {
+    const first = normalizeWords(match[1]);
+    const second = normalizeWords(match[2]);
+    if (ignoredFirstWords.has(first) || !sourceText.split(" ").includes(second)) {
+      continue;
+    }
+
+    if (!sourceText.includes(`${first} ${second}`)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function containsWrongSport(category: NewsCategory, item: GeneratedItem): boolean {
+  if (category !== "handball") {
+    return false;
+  }
+
+  return containsAny(
+    [item.title, item.teaser, item.summary, item.whyImportant, item.concreteImpact].join(" ").toLowerCase(),
+    ["fußball", "fussball"],
+  );
+}
+
+function normalizeWords(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9äöüß]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function containsAny(value: string, terms: string[]): boolean {
