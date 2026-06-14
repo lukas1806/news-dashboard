@@ -214,7 +214,8 @@ function shouldRejectWeakClaim(category: NewsCategory, item: GeneratedItem, sour
     "nicht unabhängig bestätigt",
     "bestätigung fehlt",
     "bestätigungen sind im auszug nicht angegeben",
-  ]) || (uncertaintyText.includes("unabhängig") && containsAny(uncertaintyText, ["fehlt", "fehlen", "nicht vorhanden"]));
+    "keine unabhängigen details",
+  ]) || (uncertaintyText.includes("unabhängig") && containsAny(uncertaintyText, ["keine", "fehlt", "fehlen", "nicht vorhanden"]));
 
   return explicitlyUnconfirmed || (item.uncertainty === "high" && containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]));
 }

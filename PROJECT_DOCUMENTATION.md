@@ -63,6 +63,8 @@ The review also exposed a remaining retention and uncertainty edge case: the exc
 
 The next production run at 16:46 removed the Youth Trophy item and the thin Ukraine attack report, but exposed three final polish issues: a differently phrased missing-independent-confirmation note allowed the Schattenflotte claim through, generated prose used technical words such as `Exzerpt`, and a pure Free-TV/livestream service item filled the fifth Handball slot. Missing-confirmation detection now covers these grammatical variants, technical source-processing language is forbidden in the prompt, and broadcast-only Handball items are excluded from generation and retention.
 
+The 17:00 run confirmed that broadcast-only Handball items were removed, but also exposed an ordering flaw: same-run generated items were not passed through the retention-quality predicate before saving. This allowed a high-uncertainty Ukraine attack item and technical `Auszug` wording to enter the new snapshot even though equivalent retained items would have been rejected on the next run. Generated items now pass the same predicate before merge and storage. The predicate evaluates all user-facing fields, rejects technical source-processing vocabulary, and treats `keine unabhängigen Details` as missing confirmation.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:

@@ -36,10 +36,12 @@ function mergeBriefingSnapshots(generated: BriefingSnapshot, existing: BriefingS
         (item) => now - new Date(item.createdAt).getTime() <= RETAINED_ITEM_MAX_AGE_MS && isRetainableItem(item),
       );
       const oldBySource = new Map(retained.flatMap((item) => item.sources.map((source) => [source.articleId, item] as const)));
-      const generatedWithOriginalDates = generated.categories[category].map((item) => {
-        const priorItem = item.sources.map((source) => oldBySource.get(source.articleId)).find(Boolean);
-        return priorItem ? { ...item, createdAt: priorItem.createdAt } : item;
-      });
+      const generatedWithOriginalDates = generated.categories[category]
+        .filter(isRetainableItem)
+        .map((item) => {
+          const priorItem = item.sources.map((source) => oldBySource.get(source.articleId)).find(Boolean);
+          return priorItem ? { ...item, createdAt: priorItem.createdAt } : item;
+        });
       const merged = [...generatedWithOriginalDates];
 
       for (const item of retained) {
@@ -66,7 +68,14 @@ function itemsOverlap(a: BriefingItem, b: BriefingItem): boolean {
 }
 
 function isRetainableItem(item: BriefingItem): boolean {
-  const text = [item.title, item.teaser, item.summary].join(" ").toLowerCase();
+  const text = [item.title, item.teaser, item.summary, item.whyImportant, item.concreteImpact, item.uncertaintyNote]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (containsTechnicalSourceLanguage(text)) {
+    return false;
+  }
 
   if (item.category === "wirtschaft" && (item.title.toLowerCase().startsWith("dax ") || text.includes("marktbericht"))) {
     return false;
@@ -109,6 +118,7 @@ function isRetainableItem(item: BriefingItem): boolean {
       uncertaintyNote.includes("nicht unabhängig bestätigt") ||
       uncertaintyNote.includes("bestätigung fehlt") ||
       uncertaintyNote.includes("bestätigungen sind im auszug nicht angegeben") ||
+      uncertaintyNote.includes("keine unabhängigen details") ||
       (uncertaintyNote.includes("unabhängig") &&
         (uncertaintyNote.includes("fehlt") ||
           uncertaintyNote.includes("fehlen") ||
@@ -119,6 +129,10 @@ function isRetainableItem(item: BriefingItem): boolean {
   }
 
   return true;
+}
+
+function containsTechnicalSourceLanguage(value: string): boolean {
+  return ["rss", "metadaten", "auszug", "exzerpt"].some((term) => value.includes(term));
 }
 
 function sortBriefingItems(a: BriefingItem, b: BriefingItem): number {

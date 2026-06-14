@@ -822,6 +822,8 @@ The first corrected production run confirmed the name, mixed-event, and wrong-sp
 
 A subsequent run showed that missing-confirmation wording varies grammatically and that low-value broadcast-service items can occupy a Handball slot. The rejection rule now detects `unabhängig` together with missing/not-present language, broadcast-only Handball items are excluded and not retained, and the prompt forbids technical source-processing vocabulary in user-facing prose.
 
+The 17:00 verification revealed that generated items only reached the retention predicate on a later run. Newly generated output now passes that same quality predicate before it can enter the merged snapshot. This prevents high-uncertainty single-source politics and technical source-processing language from being saved even for one generation cycle.
+
 Status:
 
 active
