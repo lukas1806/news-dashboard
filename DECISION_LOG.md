@@ -818,6 +818,8 @@ Consequence:
 
 The prompt no longer asks the model to stretch thin RSS excerpts to 250-450 words. It targets 120-220 words, forbids unsupported operational or commercial consequences, and requires surname-only wording when no first name is supplied. Server validation rejects unsupported expanded names and wrong-sport Handball text. Retention removes known malformed names, market reports, wrong-sport output, and single-source political claims whose own uncertainty note says independent confirmation is missing. The main dashboard remains unchanged pending another production run and explicit approval.
 
+The first corrected production run confirmed the name, mixed-event, and wrong-sport safeguards but showed that excluded Youth Trophy and speculative SpaceX items could remain through cross-run retention. It also produced political items whose uncertainty notes explicitly said confirmation was absent without using the attribution phrases checked in the source title. Retention therefore also excludes those two known legacy classes, and explicit missing-confirmation notes now reject single-source political output directly.
+
 Status:
 
 active

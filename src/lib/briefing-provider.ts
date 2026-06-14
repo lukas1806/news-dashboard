@@ -208,9 +208,15 @@ function shouldRejectWeakClaim(category: NewsCategory, item: GeneratedItem, sour
 
   const text = [sources[0].title, sources[0].excerpt].filter(Boolean).join(" ").toLowerCase();
   const uncertaintyText = item.uncertaintyNote.toLowerCase();
-  const explicitlyUnconfirmed = containsAny(uncertaintyText, ["unabhängige bestätigung", "nicht unabhängig", "bestätigung fehlt"]);
+  const explicitlyUnconfirmed = containsAny(uncertaintyText, [
+    "keine unabhängige bestätigung",
+    "keine unabhängigen bestätigungen",
+    "nicht unabhängig bestätigt",
+    "bestätigung fehlt",
+    "bestätigungen sind im auszug nicht angegeben",
+  ]);
 
-  return (item.uncertainty === "high" || explicitlyUnconfirmed) && containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]);
+  return explicitlyUnconfirmed || (item.uncertainty === "high" && containsAny(text, ["meldet", "nach angaben", "teilte mit", "berichtet", "zufolge"]));
 }
 
 function containsUnsupportedExpandedName(item: GeneratedItem, sources: CandidateArticle[]): boolean {

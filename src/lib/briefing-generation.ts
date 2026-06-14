@@ -85,13 +85,23 @@ function isRetainableItem(item: BriefingItem): boolean {
     return false;
   }
 
+  if (item.category === "handball" && (text.includes("youth trophy") || text.includes("jugendturnier"))) {
+    return false;
+  }
+
+  if (item.category === "wirtschaft" && text.includes("spacex-börsengang") && item.uncertainty === "high") {
+    return false;
+  }
+
   if (item.category === "politik" && item.sources.length === 1) {
     const uncertaintyNote = item.uncertaintyNote?.toLowerCase() ?? "";
     if (
       item.uncertainty === "high" ||
-      uncertaintyNote.includes("unabhängige bestätigung") ||
-      uncertaintyNote.includes("nicht unabhängig") ||
-      uncertaintyNote.includes("bestätigung fehlt")
+      uncertaintyNote.includes("keine unabhängige bestätigung") ||
+      uncertaintyNote.includes("keine unabhängigen bestätigungen") ||
+      uncertaintyNote.includes("nicht unabhängig bestätigt") ||
+      uncertaintyNote.includes("bestätigung fehlt") ||
+      uncertaintyNote.includes("bestätigungen sind im auszug nicht angegeben")
     ) {
       return false;
     }

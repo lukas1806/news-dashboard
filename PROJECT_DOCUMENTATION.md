@@ -57,6 +57,10 @@ Resulting safeguards:
 - known malformed Gidsel names, wrong-sport reports, market reports, and weak unconfirmed political reports are not retained across runs
 - the generation prompt now treats the input explicitly as RSS metadata, forbids unsupported consequences, requires surname-only wording when no first name is supplied, and targets concise 120-220 word reports instead of padding thin excerpts to 250-450 words
 
+The first corrected production run at 16:34 confirmed that the new grounding rules removed the market report, stopped the invented Gidsel first name, removed football terminology from the regenerated Handball text, and prevented the duplicate Hormuz report from returning. Wirtschaft correctly fell to three reports because the available source set did not support five strong events.
+
+The review also exposed a remaining retention and uncertainty edge case: the excluded Youth Trophy item and a speculative high-uncertainty SpaceX report survived from the previous snapshot, while two new single-source political reports explicitly stated that independent or additional confirmation was absent. Retention now removes those known legacy items, and single-source political output is rejected whenever its own uncertainty note explicitly says confirmation is missing, regardless of the source-title wording.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:
