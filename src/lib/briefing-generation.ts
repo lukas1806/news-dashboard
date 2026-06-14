@@ -73,10 +73,6 @@ function isRetainableItem(item: BriefingItem): boolean {
     .join(" ")
     .toLowerCase();
 
-  if (containsTechnicalSourceLanguage(text)) {
-    return false;
-  }
-
   if (item.category === "wirtschaft" && (item.title.toLowerCase().startsWith("dax ") || text.includes("marktbericht"))) {
     return false;
   }
@@ -129,10 +125,6 @@ function isRetainableItem(item: BriefingItem): boolean {
   }
 
   return true;
-}
-
-function containsTechnicalSourceLanguage(value: string): boolean {
-  return ["rss", "metadaten", "auszug", "exzerpt"].some((term) => value.includes(term));
 }
 
 function sortBriefingItems(a: BriefingItem, b: BriefingItem): number {

@@ -822,7 +822,9 @@ The first corrected production run confirmed the name, mixed-event, and wrong-sp
 
 A subsequent run showed that missing-confirmation wording varies grammatically and that low-value broadcast-service items can occupy a Handball slot. The rejection rule now detects `unabhängig` together with missing/not-present language, broadcast-only Handball items are excluded and not retained, and the prompt forbids technical source-processing vocabulary in user-facing prose.
 
-The 17:00 verification revealed that generated items only reached the retention predicate on a later run. Newly generated output now passes that same quality predicate before it can enter the merged snapshot. This prevents high-uncertainty single-source politics and technical source-processing language from being saved even for one generation cycle.
+The 17:00 verification revealed that generated items only reached the retention predicate on a later run. Newly generated output now passes that same factual-quality predicate before it can enter the merged snapshot. This prevents high-uncertainty single-source politics from being saved even for one generation cycle.
+
+The final manual run showed that technical vocabulary is a style defect, not a reliable server-side rejection signal: rejecting `Auszug` or `Exzerpt` reduced the saved snapshot to 1 Wirtschaft, 1 Politik, and 0 Handball reports. The hard vocabulary rejection is therefore removed while the prompt-level wording rule remains. Factual-risk and low-value-content filters continue to run before storage. Promotion remains blocked, and the next production validation must occur after the daily manual limit resets or through the next scheduled cron.
 
 Status:
 
