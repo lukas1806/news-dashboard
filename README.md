@@ -125,3 +125,7 @@ Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhind
 - der Versuchszähler liegt privat in `briefings/manual-run-state.json`
 
 Die kompakte Übersicht zeigt bis zu fünf Briefings pro Kategorie. Detailberichte sind unter `/briefing-preview/[category]/[id]` erreichbar.
+
+### Nächster Meilenstein
+
+Die Briefing-Preview soll nach einer erfolgreichen Produktions- und Qualitätsprüfung die bisherige Mock-Startseite ersetzen. Vorher müssen insbesondere der längere 300-Sekunden-Lauf, fünf hochwertige Beiträge pro Kategorie, die 48-Stunden-Übernahme starker Beiträge, mobile Detailnavigation, Fehlerzustände und die tatsächlichen OpenAI-Kosten geprüft werden. Bis zur ausdrücklichen Freigabe bleibt `/` unverändert und `/briefing-preview` die Testoberfläche.

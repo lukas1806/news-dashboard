@@ -6,6 +6,40 @@ Phase 3 preview: AI Briefing Generation, built on the Phase-2 Content Engine.
 
 The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are available through the source layer, internal APIs, `/raw`, and a separate Phase-2 candidate preview. AI-generated output is isolated in `/briefing-preview` until its quality is approved.
 
+### Current Handoff On 2026-06-14
+
+The intended next milestone is to make the Phase-3 briefing experience reliable and polished enough to replace the Phase-1 mock dashboard as the normal start page. This replacement has not been approved or implemented yet.
+
+Latest production findings:
+
+- the first compact-card manual refresh completed but returned only 2 reports per category
+- broad post-generation event clustering was identified as the cause and removed
+- the briefing-only candidate reserve was increased from 5 to 8 while the visible candidate API remains capped at 5
+- strong reports from the previous 48 hours now remain eligible and compete with new reports by relevance, then freshness
+- the next manual attempt was aborted by the former 55-second application timeout
+- briefing functions now allow the Vercel Hobby maximum of 300 seconds and abort the OpenAI request after 270 seconds with a controlled error
+- the previous successful Blob snapshot remained intact during failed attempts, as designed
+- the longer 300-second configuration has been deployed but still requires a successful production refresh and content review
+
+Do not replace the main dashboard until the production run confirms that the system normally reaches 5 useful reports per category or has a clearly justified quality-based shortage.
+
+### Main Dashboard Promotion Checklist
+
+Before `/briefing-preview` replaces `/`, verify:
+
+1. A manual or scheduled production run completes within the configured timeout.
+2. Each category normally contains 5 useful reports; fewer items have an understandable source-quality reason.
+3. Retained reports remain when they are still among the strongest items and keep their original creation time.
+4. No near-duplicate event, reused source, malformed person name, mixed-event report, or low-value market report appears.
+5. Compact cards can be scanned across all categories in approximately 2-3 minutes.
+6. Detail pages are informative, grounded, readable in under 5 minutes, and navigate correctly in the iPhone home-screen web app.
+7. Sources, publication times, uncertainty, model, and `KI-generiert` remain visible.
+8. Stale, expired, failed-run, and empty states remain understandable.
+9. OpenAI usage after the longer 15-report run remains comfortably below the EUR 5 monthly ceiling.
+10. The user explicitly approves the content quality and replacement.
+
+After approval, prefer reusing the briefing components and routes rather than duplicating them. `/` should become the briefing overview, detail URLs should move or redirect cleanly, the bottom navigation should remain simple, and `/raw` should stay an internal review tool. Keep `/briefing-preview` temporarily as a redirect or compatibility route during the transition.
+
 ## Phase 3 Preview Scope
 
 Build:
@@ -24,7 +58,7 @@ Build:
 
 Do not build yet:
 
-- Replacement of the main dashboard
+- Replacement of the main dashboard before the promotion checklist and explicit quality approval are complete
 - Briefing history or archive persistence
 - User accounts or per-user personalization
 - Multiple scheduled AI runs per day

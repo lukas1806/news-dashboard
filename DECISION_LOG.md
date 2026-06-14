@@ -777,3 +777,25 @@ The UI tells the reviewer to keep the page open. A request that exceeds 270 seco
 Status:
 
 active
+
+### Decision 055 - Promote The Briefing Preview Only After A Production Quality Gate
+
+Decision:
+
+Use the Phase-3 briefing experience as the intended successor to the Phase-1 main dashboard, but replace `/` only after a successful long-format production run and explicit user quality approval.
+
+Reason:
+
+The compact overview, dedicated detail routes, automatic morning generation, private Blob persistence, and protected manual refresh now cover the intended daily product workflow. However, the first five-item refresh exposed over-aggressive clustering, and the following retry exposed an application timeout. Both causes were corrected, but the corrected 300-second production path still needs an end-to-end content review before it becomes the primary interface.
+
+Tradeoff:
+
+The app temporarily keeps the mock dashboard and briefing preview in parallel. This creates some navigation duplication, but prevents an unstable generation path or weak content set from becoming the normal daily experience.
+
+Consequence:
+
+Promotion requires a successful run, normally five strong reports per category, correct 48-hour retention, acceptable diversity and grounding, working iPhone web-app navigation, understandable failure states, and a cost check. After approval, `/` should reuse the briefing overview, detail routes should have a clean permanent location or redirects, `/briefing-preview` should remain temporarily compatible, and `/raw` remains internal. No main-page replacement occurs implicitly as part of another quality fix.
+
+Status:
+
+active
