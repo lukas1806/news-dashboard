@@ -61,6 +61,8 @@ The first corrected production run at 16:34 confirmed that the new grounding rul
 
 The review also exposed a remaining retention and uncertainty edge case: the excluded Youth Trophy item and a speculative high-uncertainty SpaceX report survived from the previous snapshot, while two new single-source political reports explicitly stated that independent or additional confirmation was absent. Retention now removes those known legacy items, and single-source political output is rejected whenever its own uncertainty note explicitly says confirmation is missing, regardless of the source-title wording.
 
+The next production run at 16:46 removed the Youth Trophy item and the thin Ukraine attack report, but exposed three final polish issues: a differently phrased missing-independent-confirmation note allowed the Schattenflotte claim through, generated prose used technical words such as `Exzerpt`, and a pure Free-TV/livestream service item filled the fifth Handball slot. Missing-confirmation detection now covers these grammatical variants, technical source-processing language is forbidden in the prompt, and broadcast-only Handball items are excluded from generation and retention.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:

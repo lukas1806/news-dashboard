@@ -85,7 +85,14 @@ function isRetainableItem(item: BriefingItem): boolean {
     return false;
   }
 
-  if (item.category === "handball" && (text.includes("youth trophy") || text.includes("jugendturnier"))) {
+  if (
+    item.category === "handball" &&
+    (text.includes("youth trophy") ||
+      text.includes("jugendturnier") ||
+      text.includes("free-tv") ||
+      text.includes("livestream") ||
+      text.includes("wer überträgt"))
+  ) {
     return false;
   }
 
@@ -101,7 +108,11 @@ function isRetainableItem(item: BriefingItem): boolean {
       uncertaintyNote.includes("keine unabhängigen bestätigungen") ||
       uncertaintyNote.includes("nicht unabhängig bestätigt") ||
       uncertaintyNote.includes("bestätigung fehlt") ||
-      uncertaintyNote.includes("bestätigungen sind im auszug nicht angegeben")
+      uncertaintyNote.includes("bestätigungen sind im auszug nicht angegeben") ||
+      (uncertaintyNote.includes("unabhängig") &&
+        (uncertaintyNote.includes("fehlt") ||
+          uncertaintyNote.includes("fehlen") ||
+          uncertaintyNote.includes("nicht vorhanden")))
     ) {
       return false;
     }

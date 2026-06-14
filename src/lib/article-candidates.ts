@@ -249,7 +249,10 @@ function isEligibleBriefingCandidate(category: NewsCategory, article: LiveArticl
     return false;
   }
 
-  if (category === "handball" && containsAny(haystack, ["youth trophy", "jugendturnier"])) {
+  if (
+    category === "handball" &&
+    containsAny(haystack, ["youth trophy", "jugendturnier", "free-tv", "livestream", "wer überträgt"])
+  ) {
     return false;
   }
 

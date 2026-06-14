@@ -820,6 +820,8 @@ The prompt no longer asks the model to stretch thin RSS excerpts to 250-450 word
 
 The first corrected production run confirmed the name, mixed-event, and wrong-sport safeguards but showed that excluded Youth Trophy and speculative SpaceX items could remain through cross-run retention. It also produced political items whose uncertainty notes explicitly said confirmation was absent without using the attribution phrases checked in the source title. Retention therefore also excludes those two known legacy classes, and explicit missing-confirmation notes now reject single-source political output directly.
 
+A subsequent run showed that missing-confirmation wording varies grammatically and that low-value broadcast-service items can occupy a Handball slot. The rejection rule now detects `unabhängig` together with missing/not-present language, broadcast-only Handball items are excluded and not retained, and the prompt forbids technical source-processing vocabulary in user-facing prose.
+
 Status:
 
 active
