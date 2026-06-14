@@ -69,6 +69,32 @@ The fifth and final manual run at 17:11 exposed that rejecting every item contai
 
 All five manual attempts for the Berlin calendar day were consumed. The current sparse Blob snapshot must not be treated as approved output. After deployment of the rollback, the next normal validation opportunity is the automatic June 15 cron run or a manual run after the Berlin-day counter resets.
 
+### Next Session Handoff For 2026-06-15
+
+The latest code commit to deploy is `d353263` (`Relax overstrict briefing style filter`). Before doing any new generation work, confirm that this exact commit is on `origin/main` and that its Vercel Production deployment is `Ready` on `news-dashboard-blue.vercel.app`.
+
+Expected next event:
+
+- Vercel Cron calls `/api/cron/daily-briefing` on June 15, 2026 at 03:00 UTC / 05:00 Europe/Berlin
+- the automatic run is not blocked by the manual Berlin-day attempt counter
+- the current 17:11 snapshot is intentionally sparse and should be replaced only if the cron generation, validation, merge, and Blob write all complete successfully
+- if the cron fails, the existing sparse snapshot remains; inspect Vercel runtime logs without exposing secrets
+
+Review sequence after 05:00 Berlin:
+
+1. Confirm the June 15 Production cron invocation and whether it returned success.
+2. Open `/briefing-preview` and verify that `generatedAt` changed from June 14, 17:11.
+3. Record category counts and compare retained `createdAt` values with the previous reports.
+4. Review every compact card and every detail report, not only a sample.
+5. Reject promotion for any invented or combined name, mixed event, reused source, true duplicate, technical source-processing prose, unsupported consequence, wrong sport, generic market report, Youth Trophy item, broadcast-only Handball item, or weak single-source military claim.
+6. Treat fewer than five reports as acceptable only when the live candidate APIs demonstrate a genuine shortage of distinct, substantial events.
+7. Re-test one overview-to-detail-to-back flow at an iPhone-sized viewport if routes or UI changed; otherwise the June 14 mobile result remains valid.
+8. Recheck OpenAI Usage for the `news-dashboard` project and record the June 15 daily spend and token totals.
+9. Run `npm run check` and `npm run build` after any code change.
+10. Update this documentation and `DECISION_LOG.md`, commit changes, and ask the user to push.
+
+Do not replace `/`, move detail routes, or add redirects unless the user explicitly says `Freigabe` or `Go für die Hauptseite` after reviewing the successful final snapshot. If quality passes, ask for that explicit approval before implementing the Controlled Promotion Plan below.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:

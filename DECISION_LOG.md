@@ -829,3 +829,27 @@ The final manual run showed that technical vocabulary is a style defect, not a r
 Status:
 
 active
+
+## 2026-06-14
+
+### Decision 057 - Use The Next Scheduled Cron As The Binding Quality Gate
+
+Decision:
+
+After all five manual attempts on June 14 were consumed, use the June 15 scheduled production run as the next binding end-to-end quality gate. Do not infer approval from successful deployment, passing checks, or isolated content improvements.
+
+Reason:
+
+The final June 14 manual run stored an intentionally unacceptable sparse snapshot after an overstrict style filter reduced the categories to 1 Wirtschaft, 1 Politik, and 0 Handball reports. The filter was rolled back in code, but no manual attempt remained to validate the corrected production behavior on the same Berlin calendar day.
+
+Tradeoff:
+
+Validation must wait for the scheduled 03:00 UTC / 05:00 Berlin run or for the manual counter to reset. The sparse snapshot remains visible in the meantime, but it is clearly documented as a failed quality state rather than an approved briefing.
+
+Consequence:
+
+The next session must first confirm deployment of commit `d353263`, then verify the June 15 cron result, inspect every generated card and detail report, and recheck project usage. The main page remains unchanged. Promotion work starts only after a successful snapshot review and the user's explicit `Freigabe` or `Go für die Hauptseite`.
+
+Status:
+
+active
