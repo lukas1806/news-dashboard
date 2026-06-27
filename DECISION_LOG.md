@@ -874,6 +874,8 @@ Consequence:
 
 `src/lib/article-candidates.ts` assigns explicit Champions League draw language a shared event key. `src/lib/briefing-generation.ts` applies the same narrow boundary when merging retained reports, so an older duplicate cannot survive solely through its different source URL. The main page remains unchanged, and promotion remains blocked until this commit is deployed and a subsequent automatic snapshot passes review.
 
+The first production validation showed that generated prose can describe the event as an `Auslosung der Vorrundengruppen` without repeating `Champions League`. The retention boundary therefore also treats explicit group-stage draw wording as sufficient event evidence. Generic mentions of a draw still require Champions League context.
+
 Status:
 
 active

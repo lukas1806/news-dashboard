@@ -107,6 +107,8 @@ One blocking duplicate class remained: multiple Handball reports described angle
 
 The exact June 15 invocation and its overwritten snapshot can no longer be reconstructed on June 27: the Hobby runtime-log view exposes only the recent window, and the private storage design keeps only `briefings/latest.json`. OpenAI Usage for June 15 also could not be read because the available browser session requires a fresh OpenAI Platform login. Do not invent historical counts or cost values. The current duplicate fix must be pushed and pass a subsequent automatic production run before a positive promotion recommendation.
 
+The first manual validation after deploying `da87591` completed successfully on June 27 at 13:40 Berlin time and left four manual attempts. It stored 2 Wirtschaft, 5 Politik, and 5 Handball reports. The lower Wirtschaft count matches the two live candidates and is acceptable source scarcity. Candidate diversity correctly generated only one new draw article, but cross-run retention still kept an older second draw report because the new text said `Vorrundengruppen` without repeating `Champions League`. Retention detection now also recognizes explicit group-stage draw wording on its own. Promotion remains blocked until this follow-up is deployed and validated.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:

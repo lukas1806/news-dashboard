@@ -73,12 +73,18 @@ function itemsOverlap(a: BriefingItem, b: BriefingItem): boolean {
 
 function isChampionsLeagueDraw(item: BriefingItem): boolean {
   const text = [item.title, item.teaser, item.summary, ...item.sources.map((source) => source.url)].join(" ").toLowerCase();
+  const explicitlyDescribesGroupDraw = [
+    "auslosung der gruppenphase",
+    "auslosung der vorrundengruppen",
+    "vorrundengruppen",
+    "vorrunden-gegner",
+    "vorrundengegner",
+  ].some((term) => text.includes(term));
 
   return (
-    (text.includes("champions league") || text.includes("königsklasse")) &&
-    ["auslosung", "ausgelost", "vorrundengruppen", "vorrunden-gegner", "vorrundengegner"].some((term) =>
-      text.includes(term),
-    )
+    explicitlyDescribesGroupDraw ||
+    ((text.includes("champions league") || text.includes("königsklasse")) &&
+      ["auslosung", "ausgelost"].some((term) => text.includes(term)))
   );
 }
 
