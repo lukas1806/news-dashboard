@@ -395,6 +395,13 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
     return "handball-ehf-final4";
   }
 
+  if (
+    containsAny(haystack, ["champions league", "königsklasse"]) &&
+    containsAny(haystack, ["auslosung", "ausgelost", "vorrundengruppen", "vorrunden-gegner", "vorrundengegner"])
+  ) {
+    return "handball-champions-league-auslosung";
+  }
+
   if (containsAny(haystack, ["statistiken", "top-torschützen", "top-torhüter", "ewige hbl-torschützenliste"])) {
     return "handball-ligaweite-einordnung";
   }

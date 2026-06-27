@@ -95,6 +95,18 @@ Review sequence after 05:00 Berlin:
 
 Do not replace `/`, move detail routes, or add redirects unless the user explicitly says `Freigabe` or `Go für die Hauptseite` after reviewing the successful final snapshot. If quality passes, ask for that explicit approval before implementing the Controlled Promotion Plan below.
 
+### Production Audit On 2026-06-27
+
+Production deployment `1HuWo5xm11PWyUiWUWGgFAqiykdp` is `Ready`, `Current`, assigned to `news-dashboard-blue.vercel.app`, and built from commit `d353263`. A fresh `git fetch` confirmed that `origin/main` is still `d353263`; local `main` additionally contains the unpushed documentation commit `c9897c5`.
+
+The latest stored briefing was generated on June 27 at 05:54 Berlin time, proving that the sparse June 14 snapshot was replaced and that scheduled generation and Blob storage have continued to work. It contains 3 Wirtschaft, 4 Politik, and 5 Handball reports. The current live candidate APIs return 2 Wirtschaft, 5 Politik, and 5 Handball candidates. The Wirtschaft shortage is therefore genuine; the third visible Wirtschaft report is a correctly retained older report. Other retained reports also keep their earlier creation dates as intended.
+
+Every current card and detail page was reviewed. Names, source links, source publication times, sports category, and uncertainty labels were grounded in the supplied candidate metadata. No malformed combined names, wrong sport, generic market report, Youth Trophy item, broadcast-only item, reused source, or weak unconfirmed military single-source report was present. Several reports still use technical wording such as `Auszug` or contain generic minor impact language; these are non-blocking style issues under the promotion decision boundary.
+
+One blocking duplicate class remained: multiple Handball reports described angles from the same concrete EHF Champions League group-stage draw. Candidate diversity now assigns all explicit Champions League draw articles one event key, and cross-run retention treats two such reports as overlapping. This keeps the strongest draw report without broadly collapsing unrelated Champions League stories.
+
+The exact June 15 invocation and its overwritten snapshot can no longer be reconstructed on June 27: the Hobby runtime-log view exposes only the recent window, and the private storage design keeps only `briefings/latest.json`. OpenAI Usage for June 15 also could not be read because the available browser session requires a fresh OpenAI Platform login. Do not invent historical counts or cost values. The current duplicate fix must be pushed and pass a subsequent automatic production run before a positive promotion recommendation.
+
 The production UI passed the mobile structural check at 390 x 844 pixels: cards showed title, teaser, source, source time, uncertainty, and reading time without horizontal overflow. Detail sections and source links were present, and the back control returned from a detail report to `/briefing-preview`. Content approval remains outstanding.
 
 OpenAI Usage for the `news-dashboard` project after the run showed:

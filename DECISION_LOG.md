@@ -853,3 +853,27 @@ The next session must first confirm deployment of commit `d353263`, then verify 
 Status:
 
 active
+
+## 2026-06-27
+
+### Decision 058 - Cluster Concrete Champions League Draw Coverage
+
+Decision:
+
+Treat articles explicitly describing the same EHF Champions League group-stage draw as one Handball event during candidate selection and cross-run retention.
+
+Reason:
+
+The June 27 production audit found several distinct source articles and stored reports covering different angles of the same draw. They used different URLs and titles, so source-reuse and near-title checks did not identify the concrete-event duplication.
+
+Tradeoff:
+
+Only the strongest explicit draw report remains when several related articles are available, so Handball may show fewer than five reports. Unrelated Champions League reports, including club objectives, sponsorship, awards, and other structural developments, remain eligible.
+
+Consequence:
+
+`src/lib/article-candidates.ts` assigns explicit Champions League draw language a shared event key. `src/lib/briefing-generation.ts` applies the same narrow boundary when merging retained reports, so an older duplicate cannot survive solely through its different source URL. The main page remains unchanged, and promotion remains blocked until this commit is deployed and a subsequent automatic snapshot passes review.
+
+Status:
+
+active

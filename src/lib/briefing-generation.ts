@@ -64,7 +64,22 @@ function itemsOverlap(a: BriefingItem, b: BriefingItem): boolean {
     return true;
   }
 
+  if (a.category === "handball" && b.category === "handball" && isChampionsLeagueDraw(a) && isChampionsLeagueDraw(b)) {
+    return true;
+  }
+
   return titlesAreNearDuplicates(a.title, b.title);
+}
+
+function isChampionsLeagueDraw(item: BriefingItem): boolean {
+  const text = [item.title, item.teaser, item.summary, ...item.sources.map((source) => source.url)].join(" ").toLowerCase();
+
+  return (
+    (text.includes("champions league") || text.includes("königsklasse")) &&
+    ["auslosung", "ausgelost", "vorrundengruppen", "vorrunden-gegner", "vorrundengegner"].some((term) =>
+      text.includes(term),
+    )
+  );
 }
 
 function isRetainableItem(item: BriefingItem): boolean {
