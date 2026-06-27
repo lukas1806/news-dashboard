@@ -19,10 +19,10 @@ export function BriefingDetail({ item, model }: { item: BriefingItem; model: str
       <button
         className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-ink"
         onClick={() => {
-          if (window.history.length > 1) {
+          if (window.history.length > 1 && document.referrer.startsWith(window.location.origin)) {
             router.back();
           } else {
-            router.push("/briefing-preview");
+            router.push("/");
           }
         }}
         type="button"

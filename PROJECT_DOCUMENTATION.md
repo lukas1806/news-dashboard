@@ -2,9 +2,25 @@
 
 ## Current Phase
 
-Phase 3 preview: AI Briefing Generation, built on the Phase-2 Content Engine.
+Phase 3 production: the AI-generated daily briefing is the primary user experience, built on the Phase-2 Content Engine.
 
-The app still uses the Phase-1 mock dashboard for the main user experience. Real feeds are available through the source layer, internal APIs, `/raw`, and a separate Phase-2 candidate preview. AI-generated output is isolated in `/briefing-preview` until its quality is approved.
+The user explicitly approved promotion with `Go für die Hauptseite` on 2026-06-27. `/` now serves the briefing overview, permanent report URLs live under `/briefing/[category]/[id]`, and the former `/briefing-preview` routes remain as permanent compatibility redirects. `/raw` remains an internal source-review tool for later validation rounds.
+
+### Main Dashboard Promotion On 2026-06-27
+
+The final reviewed production snapshot was accepted as good enough to end the preview phase. The product preference is at least three useful reports per category whenever the available sources support three grounded events. The system must still prefer a transparent shortage over invented facts, duplicates, weak military claims, reused sources, or low-value filler.
+
+Promotion changes:
+
+- `/` reuses the existing briefing overview and all fresh, stale, unavailable, and manual-refresh behavior
+- permanent details live at `/briefing/[category]/[id]`
+- `/briefing-preview/[category]/[id]` permanently redirects to the matching permanent detail URL
+- `/briefing-preview` permanently redirects to `/` for saved links and installed web-app sessions
+- `/raw` remains available in the simple three-item mobile navigation for future source validation
+- detail back navigation returns through same-origin history and otherwise falls back to `/`, including direct iPhone home-screen entries
+- Phase-1 mock dashboard components remain in the repository temporarily but are no longer routed as the primary experience
+
+The former preview routes can be removed in a later cleanup only after compatibility links are no longer needed. No database, paid source API, public generation endpoint, or additional scheduled run was introduced.
 
 ### Current Handoff On 2026-06-14
 

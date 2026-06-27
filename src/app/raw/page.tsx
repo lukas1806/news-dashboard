@@ -44,7 +44,7 @@ export default async function RawFeedsPage() {
             <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">Rohmeldungen</h1>
           </div>
           <p className="max-w-xl text-sm leading-6 text-slate-300">
-            Echte kostenlose Feed-Artikel zur Quellenprüfung. Diese Ansicht ersetzt noch nicht das kuratierte Executive Dashboard.
+            Echte kostenlose Feed-Artikel zur internen Quellenprüfung und für spätere Validierungsrunden.
           </p>
           <p className="text-sm text-muted">
             {totalCandidates} Kandidaten aus {totalArticles} geladenen Artikeln

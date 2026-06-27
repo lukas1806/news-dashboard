@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Executive News Dashboard",
-  description: "Statische Phase-1-Demo für ein persönliches Executive News Dashboard.",
+  description: "Tägliches KI-gestütztes Executive Briefing für Wirtschaft, Politik und Handball.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

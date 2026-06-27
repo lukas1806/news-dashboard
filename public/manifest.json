@@ -1,7 +1,7 @@
 {
   "name": "Executive News Dashboard",
   "short_name": "News",
-  "description": "Persönliches Executive News Dashboard als statische Phase-1-Demo.",
+  "description": "Tägliches Executive Briefing für Wirtschaft, Politik und Handball.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

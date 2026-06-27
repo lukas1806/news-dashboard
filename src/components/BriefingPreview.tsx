@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Bot, Clock3 } from "lucide-react";
+import { AlertTriangle, ArrowRight, Bot, Clock3 } from "lucide-react";
 import { BriefingManualRefresh } from "@/components/BriefingManualRefresh";
 import { CategoryTabs } from "@/components/CategoryTabs";
 import {
@@ -30,19 +30,14 @@ export function BriefingPreview({
 
   return (
     <main className="px-4 pb-28 pt-6 sm:px-6 sm:pt-8">
-      <Link className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-ink" href="/">
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        Zurück zum Dashboard
-      </Link>
-
-      <header className="mt-4">
+      <header>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted">Phase 3 · Preview</p>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted">Tägliches Briefing</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">Morning Briefing</h1>
           </div>
           <div className="rounded-md border border-violet-300/30 bg-violet-300/5 px-2.5 py-1.5 text-right">
-            <p className="text-[0.68rem] uppercase tracking-[0.16em] text-violet-200">Experiment</p>
+            <p className="text-[0.68rem] uppercase tracking-[0.16em] text-violet-200">Status</p>
             <p className="text-sm font-semibold text-ink">{isMockSnapshot ? "Lokaler Mock" : "KI-generiert"}</p>
           </div>
         </div>
@@ -106,7 +101,7 @@ function CompactBriefingCard({ item }: { item: BriefingItem }) {
   return (
     <Link
       className="group block rounded-lg border border-line bg-surface p-4 transition hover:border-slate-500/60 hover:bg-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-      href={`/briefing-preview/${item.category}/${encodeURIComponent(item.id)}`}
+      href={`/briefing/${item.category}/${encodeURIComponent(item.id)}`}
     >
       <article>
         <div className="flex items-center justify-between gap-3 text-xs text-muted">

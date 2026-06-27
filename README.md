@@ -1,6 +1,6 @@
 # Executive News Dashboard
 
-Phase-1-Demo für ein persönliches Executive News Dashboard mit Phase-2-Content-Engine und separater Phase-3-Briefing-Preview.
+Persönliches Executive News Dashboard mit täglichem KI-Briefing und interner RSS-Content-Engine.
 
 ## Stack
 
@@ -44,13 +44,15 @@ Beim Import in Vercel:
 - Build Command: `npm run build`
 - Output Directory: leer lassen
 
-Die App enthält interne Phase-2-APIs für RSS-Quellenprüfung und Kandidatenauswahl. Die Phase-3-Preview verwendet zusätzlich einen einzelnen täglichen OpenAI-Aufruf und einen privaten Vercel-Blob-Snapshot. Eine Datenbank wird weiterhin nicht verwendet.
+Die App enthält interne Phase-2-APIs für RSS-Quellenprüfung und Kandidatenauswahl. Die Hauptseite verwendet einen einzelnen täglichen OpenAI-Aufruf und einen privaten Vercel-Blob-Snapshot. Eine Datenbank wird weiterhin nicht verwendet.
 
 Interne Phase-2-Oberflächen:
 
 - `/raw` für Quellen- und Kandidatenreview
 - `/preview` für eine kompakte Vorschau mit maximal 5 Kandidaten pro Kategorie und gekennzeichnetem Mock-Fallback
-- `/briefing-preview` für täglich erzeugte KI-Briefings mit Quellen und Unsicherheitskennzeichnung
+- `/` für das täglich erzeugte KI-Briefing mit Quellen und Unsicherheitskennzeichnung
+- `/briefing/[category]/[id]` für permanente Detailberichte
+- `/briefing-preview` als vorübergehender Kompatibilitäts-Redirect
 
 ## Phase-3-Konfiguration
 
@@ -99,13 +101,13 @@ Bei älteren oder manuell tokenbasierten Blob-Setups kann stattdessen `BLOB_READ
 
 `vercel.json` plant `/api/cron/daily-briefing` täglich um `03:00 UTC`. Das entspricht in Deutschland ungefähr 04:00 Uhr im Winter und 05:00 Uhr im Sommer. Vercel sendet dabei automatisch `Authorization: Bearer <CRON_SECRET>`.
 
-Der erste erfolgreiche Lauf legt `briefings/latest.json` im privaten Blob Store an. Danach zeigt `/briefing-preview` die erzeugten Briefings. Vor dem ersten Lauf ist die Meldung `Noch kein Briefing verfügbar` der erwartete Zustand.
+Der erste erfolgreiche Lauf legt `briefings/latest.json` im privaten Blob Store an. Danach zeigt `/` die erzeugten Briefings. Vor dem ersten Lauf ist die Meldung `Noch kein Briefing verfügbar` der erwartete Zustand.
 
 Checkliste für den ersten Produktionslauf:
 
 1. In Vercel unter Cron Jobs oder Logs prüfen, ob `/api/cron/daily-briefing` erfolgreich ausgeführt wurde.
 2. Im Blob Browser prüfen, ob `briefings/latest.json` angelegt wurde.
-3. `/briefing-preview` öffnen und Kandidatenauswahl, deutsche Texte, Quellen, Zeiten und Unsicherheit prüfen.
+3. `/` öffnen und Kandidatenauswahl, deutsche Texte, Quellen, Zeiten und Unsicherheit prüfen.
 4. Im OpenAI-Projekt unter Usage die Kosten des ersten Aufrufs kontrollieren.
 5. Bei einem Fehler zuerst die Vercel Function Logs prüfen; keine Secrets in Fehlermeldungen oder Screenshots teilen.
 
@@ -115,7 +117,7 @@ Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhind
 
 ### Manuelle Aktualisierung und Detailseiten
 
-`/briefing-preview` enthält einen passwortgeschützten Button für vollständige Testläufe aller drei Kategorien. Vor jedem Lauf muss ein Kostenhinweis bestätigt werden.
+Die Hauptseite enthält einen passwortgeschützten Button für vollständige Testläufe aller drei Kategorien. Vor jedem Lauf muss ein Kostenhinweis bestätigt werden.
 
 - maximal 5 manuelle Versuche pro Berliner Kalendertag
 - keine künstliche Wartezeit zwischen den Versuchen
@@ -124,8 +126,8 @@ Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhind
 - das Passwort liegt nur in der aktuellen Browser-Sitzung in `sessionStorage`
 - der Versuchszähler liegt privat in `briefings/manual-run-state.json`
 
-Die kompakte Übersicht zeigt bis zu fünf Briefings pro Kategorie. Detailberichte sind unter `/briefing-preview/[category]/[id]` erreichbar.
+Die kompakte Übersicht zeigt bis zu fünf Briefings pro Kategorie. Detailberichte sind unter `/briefing/[category]/[id]` erreichbar.
 
-### Nächster Meilenstein
+### Aktueller Produktstand
 
-Die Briefing-Preview soll nach einer erfolgreichen Produktions- und Qualitätsprüfung die bisherige Mock-Startseite ersetzen. Vorher müssen insbesondere der längere 300-Sekunden-Lauf, fünf hochwertige Beiträge pro Kategorie, die 48-Stunden-Übernahme starker Beiträge, mobile Detailnavigation, Fehlerzustände und die tatsächlichen OpenAI-Kosten geprüft werden. Bis zur ausdrücklichen Freigabe bleibt `/` unverändert und `/briefing-preview` die Testoberfläche.
+Das Briefing wurde am 27.06.2026 nach ausdrücklicher Freigabe auf die Hauptseite promoted. `/raw` bleibt für spätere Quellen- und Qualitätsrunden erhalten; die ehemaligen Preview-Routen leiten aus Kompatibilitätsgründen auf die neuen Hauptseitenrouten weiter.

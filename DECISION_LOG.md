@@ -881,3 +881,25 @@ The second production validation exposed `Champions-League` as a missing determi
 Status:
 
 active
+
+### Decision 059 - Promote The Daily Briefing To The Main Dashboard
+
+Decision:
+
+After the user's explicit `Go für die Hauptseite`, make the daily briefing overview the `/` experience and move permanent report URLs to `/briefing/[category]/[id]`.
+
+Reason:
+
+The user accepted the reviewed result and explicitly chose normal app use over further open-ended preview rounds. Remaining minor wording and UI polish can be improved after promotion; only severe factual, duplication, sourcing, sport, military-confirmation, or storage failures remain blocking.
+
+Tradeoff:
+
+Some categories can occasionally contain fewer than three reports when the free live sources do not support three grounded events. The product preference is at least three, but the system must not manufacture filler or retain unsafe content to meet a numeric floor.
+
+Consequence:
+
+`/` renders the briefing overview, `/briefing/[category]/[id]` is the permanent detail route, and the former preview overview and detail URLs permanently redirect to their replacements. `/raw` remains an internal review surface in the simple mobile navigation. Direct detail entry falls back to `/` when there is no same-origin browser history. The Phase-1 mock dashboard is no longer the routed main experience.
+
+Status:
+
+active
