@@ -42,7 +42,13 @@ function mergeBriefingSnapshots(generated: BriefingSnapshot, existing: BriefingS
           const priorItem = item.sources.map((source) => oldBySource.get(source.articleId)).find(Boolean);
           return priorItem ? { ...item, createdAt: priorItem.createdAt } : item;
         });
-      const merged = [...generatedWithOriginalDates];
+      const merged: BriefingItem[] = [];
+
+      for (const item of generatedWithOriginalDates) {
+        if (!merged.some((candidate) => itemsOverlap(candidate, item))) {
+          merged.push(item);
+        }
+      }
 
       for (const item of retained) {
         if (merged.some((candidate) => itemsOverlap(candidate, item))) {

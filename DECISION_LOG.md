@@ -876,6 +876,8 @@ Consequence:
 
 The first production validation showed that generated prose can describe the event as an `Auslosung der Vorrundengruppen` without repeating `Champions League`. The retention boundary therefore also treats explicit group-stage draw wording as sufficient event evidence. Generic mentions of a draw still require Champions League context.
 
+The second production validation exposed `Champions-League` as a missing deterministic spelling variant and showed that two same-run generated items were not compared with each other during the merge. Both spellings now share the candidate event key, and `itemsOverlap` is also applied within the new generated set as a final server-side safeguard.
+
 Status:
 
 active

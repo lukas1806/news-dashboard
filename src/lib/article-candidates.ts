@@ -396,7 +396,7 @@ function getCandidateTopicKey(category: NewsCategory, article: LiveArticle): str
   }
 
   if (
-    containsAny(haystack, ["champions league", "königsklasse"]) &&
+    containsAny(haystack, ["champions league", "champions-league", "königsklasse"]) &&
     containsAny(haystack, ["auslosung", "ausgelost", "vorrundengruppen", "vorrunden-gegner", "vorrundengegner"])
   ) {
     return "handball-champions-league-auslosung";
