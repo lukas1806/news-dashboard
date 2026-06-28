@@ -7,7 +7,6 @@ Persönliches Executive News Dashboard mit täglichem KI-Briefing und interner R
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- Mockdaten
 - kostenlose RSS-Feeds für interne Phase-2-Validierung
 - OpenAI Responses API für einen täglichen Phase-3-Briefing-Lauf
 - private Vercel-Blob-Datei für den letzten erfolgreichen Snapshot
@@ -37,7 +36,7 @@ npm run build
 
 `npm test` führt lokale Regressionstests für Candidate-Dubletten, Briefing-Grounding, Quellenwiederverwendung und Snapshot-Validierung aus. Die Tests verwenden nur Fixtures und verursachen keine RSS-, Blob- oder OpenAI-Aufrufe.
 
-Die Tests sichern außerdem den geschützten Tagesbetrieb ab: Ein vorhandener Snapshot desselben UTC-Tages verhindert einen zweiten Lauf, und ein Generierungsfehler darf den bestehenden Snapshot nicht überschreiben.
+Die Tests sichern außerdem den geschützten Tagesbetrieb und das echte Monatsarchiv ab: Monatsgrenzen, Qualitätsschwellen, Deduplizierung, Idempotenz und Storage laufen ausschließlich mit Fixtures ohne Netzwerkzugriff.
 
 `/raw` ist die einzige interne Oberfläche für Quellen-, Kandidaten- und Qualitätsreview. Der historische Pfad `/preview` leitet dauerhaft dorthin weiter; `/briefing-preview` bleibt separat als Kompatibilitätsredirect für frühere Briefing-Links bestehen.
 
@@ -64,6 +63,8 @@ Interne Phase-2-Oberflächen:
 - `/` für das täglich erzeugte KI-Briefing mit Quellen und Unsicherheitskennzeichnung
 - `/briefing/[category]/[id]` für permanente Detailberichte
 - `/briefing-preview` als vorübergehender Kompatibilitäts-Redirect
+- `/archive` für dauerhafte Monatsrückblicke aus Wirtschaft und Politik
+- `/archive/YYYY-MM/wirtschaft` und `/archive/YYYY-MM/politik` für permanente Monatsdetails
 
 ## Phase-3-Konfiguration
 
@@ -125,6 +126,22 @@ Checkliste für den ersten Produktionslauf:
 Für lokale Tests können `BRIEFING_AI_PROVIDER=mock` und `BRIEFING_STORAGE_DRIVER=file` verwendet werden, ohne API-Kosten zu erzeugen.
 
 Die OpenAI-Projektbudget-Einstellung ist nur eine Warnschwelle. Der Code verhindert deshalb zusätzliche Modellaufrufe am selben UTC-Tag und gibt bei Cron-Wiederholungen den vorhandenen Snapshot zurück.
+
+### Dauerhaftes Monatsarchiv
+
+Jeder erfolgreiche automatische Tageslauf speichert zusätzlich eine private Archivgrundlage mit ausschließlich Wirtschaft und Politik unter `briefings/archive-inputs/YYYY-MM-DD.json`. Manuelle Aktualisierungen tun dies nicht. Der erste angebrochene Sammelmonat wird automatisch übersprungen; bei Aktivierung Ende Juni 2026 ist Juli 2026 der erste vollständige Monat und wird erstmals am 1. August verarbeitet.
+
+Der bestehende Cron versucht am 1. Berliner Kalendertag den Vormonat zu verdichten und am 2. genau einmal erneut, falls kein technischer Abschluss gespeichert wurde. Mindestens sechs deduplizierte Ereignisse von drei Anbietern sind je Kategorie erforderlich. Ohne qualifizierte Kategorie gibt es keinen Modellaufruf; der Monat wird dennoch als verarbeitet markiert. Archivfehler bleiben best-effort und können Tages-Snapshot oder Cron-Erfolg nicht blockieren.
+
+Private Pfade:
+
+- `briefings/archive/YYYY-MM.json` (dauerhaft)
+- `briefings/archive/index.json`
+- `briefings/archive/run-state.json`
+- `briefings/archive/collection-state.json`
+- `briefings/archive-inputs/YYYY-MM-DD.json` (etwa 45 Tage Retention)
+
+Das Archiv startet produktiv leer. Die früheren fiktiven Tages- und Wochen-Demodaten sowie ihre Detailkomponenten wurden entfernt; alte `/news/[id]`-Links leiten permanent auf `/archive` weiter.
 
 ### Manuelle Aktualisierung und Detailseiten
 

@@ -25,6 +25,14 @@ export async function generateAndSaveDailyBriefing({ force = false }: { force?: 
   const snapshot = mergeBriefingSnapshots(generatedSnapshot, existingSnapshot);
 
   await saveBriefingSnapshot(snapshot);
+  if (!force) {
+    try {
+      const { collectAndProcessArchive } = await import("@/lib/archive-operation");
+      await collectAndProcessArchive(snapshot);
+    } catch (error) {
+      console.error("Monthly archive best-effort step failed", { errorType: error instanceof Error ? error.name : "UnknownError" });
+    }
+  }
   return { snapshot, generated: true };
 }
 

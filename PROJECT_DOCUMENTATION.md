@@ -4,6 +4,18 @@
 
 Phase 3 production: the AI-generated daily briefing is the primary user experience, built on the Phase-2 Content Engine.
 
+### Durable Monthly Archive On 2026-06-28
+
+The fictional Phase-1 weekly archive has been replaced with a durable, initially empty monthly archive for Wirtschaft and Politik only. `/archive` supports year selection and descending months; permanent detail routes are `/archive/YYYY-MM/wirtschaft` and `/archive/YYYY-MM/politik`. Legacy `/news/[id]` URLs permanently redirect to `/archive`. The mock news dataset, weekly types, and archive-only card/detail utilities were removed after import analysis proved they were unused elsewhere.
+
+Every successful automatic daily generation writes a private Wirtschaft/Politik-only input at `briefings/archive-inputs/YYYY-MM-DD.json` after the daily snapshot is safe. Manual refresh never collects or generates archive data. `collection-state.json` records the first month that can be complete, so deployment during a month skips that partial month automatically. With activation at the end of June 2026, July is the first complete collection month and the first expected archive attempt is August 1.
+
+The existing single cron performs the previous-month attempt on Berlin day 1 and exactly one retry on day 2. Run state is persisted before the optional combined OpenAI call, preventing same-day Vercel retries and further calls after two attempts. Six distinct events and three providers are required per category after source-ID and narrow event deduplication. A category may be omitted; when neither qualifies, no model call occurs and the month is permanently marked processed-empty.
+
+Storage remains private Vercel Blob with an equivalent `.briefing-data` file driver: durable months under `briefings/archive/YYYY-MM.json`, plus `index.json`, `run-state.json`, and `collection-state.json`. A saved month repairs a missing index on the next allowed run without another model call. Inputs older than about 45 days are cleaned best-effort. Archive collection, generation, index, and cleanup failures never roll back or fail a successful daily snapshot.
+
+Archive fixtures cover Berlin/year boundaries, day-1/day-2 scheduling, same-day idempotency, partial first month, qualification thresholds, source/event deduplication, processed-empty behavior, index repair, validation, and non-blocking cleanup. Acceptance requires `npm test`, `npm run check`, `npm run build`, direct archive detail routing, legacy redirects, an empty production state, and no 390×844 horizontal overflow.
+
 The user explicitly approved promotion with `Go für die Hauptseite` on 2026-06-27. `/` now serves the briefing overview, permanent report URLs live under `/briefing/[category]/[id]`, and the former `/briefing-preview` routes remain as permanent compatibility redirects. `/raw` remains an internal source-review tool for later validation rounds.
 
 ### Main Dashboard Promotion On 2026-06-27

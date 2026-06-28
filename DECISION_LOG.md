@@ -1,5 +1,29 @@
 # Decision Log
 
+## 2026-06-28
+
+### Decision 066 - Replace The Fictional Weekly Archive With Durable Monthly Synthesis
+
+Decision:
+
+Collect private automatic daily inputs for Wirtschaft and Politik and generate at most one durable report per category for each complete month. Start production empty and exclude Handball from archive types, inputs, generation, and routes.
+
+Reason:
+
+The old weekly archive was fictional UI demonstration data. A useful archive must preserve real source-grounded development lines across a complete month without introducing a database, another cron, or manual generation.
+
+Tradeoff:
+
+The first partial deployment month is deliberately skipped, strict six-event/three-provider thresholds can leave categories or entire months invisible, and one additional combined model call is normally made after month-end.
+
+Consequence:
+
+The single daily cron attempts the previous month on Berlin day 1 and retries once on day 2. Attempts are stored before generation; processed-empty months and saved months prevent further calls. Private Blob/file paths contain daily inputs, collection/run state, index, and permanent month files. Input cleanup after roughly 45 days and every archive failure are best-effort so the daily snapshot always has priority. `/archive` and `/archive/YYYY-MM/{wirtschaft|politik}` are the product routes; legacy `/news/[id]` redirects permanently. The Phase-1 demo dataset and its unused presentation components are removed.
+
+Status:
+
+active
+
 ## 2026-06-07
 
 ### Decision 020 - Start Phase 2 With Free RSS Sources
