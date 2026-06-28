@@ -30,9 +30,12 @@ http://localhost:3000
 ## Prüfen
 
 ```bash
+npm test
 npm run check
 npm run build
 ```
+
+`npm test` führt lokale Regressionstests für Candidate-Dubletten, Briefing-Grounding, Quellenwiederverwendung und Snapshot-Validierung aus. Die Tests verwenden nur Fixtures und verursachen keine RSS-, Blob- oder OpenAI-Aufrufe.
 
 ## Vercel Deployment
 

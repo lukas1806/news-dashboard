@@ -28,7 +28,7 @@ export async function generateAndSaveDailyBriefing({ force = false }: { force?: 
   return { snapshot, generated: true };
 }
 
-function mergeBriefingSnapshots(generated: BriefingSnapshot, existing: BriefingSnapshot | null): BriefingSnapshot {
+export function mergeBriefingSnapshots(generated: BriefingSnapshot, existing: BriefingSnapshot | null): BriefingSnapshot {
   const now = new Date(generated.generatedAt).getTime();
   const mergedCategories = Object.fromEntries(
     categories.map(({ id: category }) => {

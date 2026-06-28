@@ -22,6 +22,12 @@ Promotion changes:
 
 The former preview routes can be removed in a later cleanup only after compatibility links are no longer needed. No database, paid source API, public generation endpoint, or additional scheduled run was introduced.
 
+### Automated Quality Regression Baseline On 2026-06-28
+
+The first post-promotion maintenance package adds a local Vitest suite without changing production behavior. It covers Champions League draw clustering across spelling variants, same-run and retained duplicates, source reuse, invented first names, football terminology in Handball, weak unconfirmed single-source politics, and snapshot schema limits. Pure internal grounding and merge functions are exported only to make those rules directly testable. Tests use fixtures and never call RSS feeds, Vercel Blob, or OpenAI.
+
+Every future code change should run `npm test`, `npm run check`, and `npm run build`. The npm audit currently reports transitive advisories in the installed Next.js/PostCSS and Undici dependency trees. No automatic or forced audit fix was applied because the suggested PostCSS remediation would install a breaking Next.js version; dependency remediation must be handled as a separate reviewed maintenance change.
+
 ### Current Handoff On 2026-06-14
 
 The intended next milestone is to make the Phase-3 briefing experience reliable and polished enough to replace the Phase-1 mock dashboard as the normal start page. This replacement has not been approved or implemented yet.

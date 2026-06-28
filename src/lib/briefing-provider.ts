@@ -6,7 +6,7 @@ import type { CandidateArticle } from "@/types/source";
 
 type CandidateGroups = Record<NewsCategory, CandidateArticle[]>;
 
-type GeneratedItem = {
+export type GeneratedItem = {
   title: string;
   teaser: string;
   summary: string;
@@ -17,7 +17,7 @@ type GeneratedItem = {
   sourceArticleIds: string[];
 };
 
-type GeneratedBriefing = Record<NewsCategory, GeneratedItem[]>;
+export type GeneratedBriefing = Record<NewsCategory, GeneratedItem[]>;
 
 type GroundedGeneratedItem = {
   item: GeneratedItem;
@@ -119,7 +119,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
   return parseGeneratedBriefing(JSON.parse(outputText) as unknown);
 }
 
-function groundGeneratedBriefing(
+export function groundGeneratedBriefing(
   generated: GeneratedBriefing,
   candidateGroups: CandidateGroups,
   generatedAt: string,

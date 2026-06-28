@@ -903,3 +903,27 @@ Consequence:
 Status:
 
 active
+
+## 2026-06-28
+
+### Decision 060 - Protect Briefing Quality Rules With Fixture Tests
+
+Decision:
+
+Add a small Vitest regression suite around the deterministic candidate, grounding, merge, and snapshot-validation rules before making further production changes.
+
+Reason:
+
+The preview phase exposed repeated regressions in event deduplication, name grounding, sport classification, source reuse, and weak single-source handling. TypeScript and production builds verify compilation but not these editorial safety contracts.
+
+Tradeoff:
+
+Vitest adds one development dependency and a small amount of test-only configuration. Pure internal functions must be exported for direct testing, but no route or runtime behavior changes.
+
+Consequence:
+
+`npm test` runs fixture-only tests without RSS, Blob, or OpenAI access. Future changes must keep tests, `npm run check`, and `npm run build` green. Dependency audit remediation remains a separate reviewed task rather than an automatic forced update.
+
+Status:
+
+active
