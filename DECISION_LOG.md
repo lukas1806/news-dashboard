@@ -1015,3 +1015,25 @@ Blob networking uses the patched Undici version with no manifest or runtime-code
 Status:
 
 active
+
+### Decision 065 - End The Post-Promotion Optimization Cycle
+
+Decision:
+
+Close the five-package post-promotion maintenance sequence and return the project to normal daily operation instead of starting another open-ended validation or polish cycle.
+
+Reason:
+
+Quality rules now have fixture coverage, protected runs and snapshot writes have operational safeguards, redundant internal UI has been removed, mobile and compatibility routing passed production acceptance, and the safely remediable high-severity dependency finding is resolved. The remaining issues are either non-blocking polish or a documented moderate advisory that has no safe upstream remediation yet.
+
+Tradeoff:
+
+The project deliberately leaves minor wording and visual improvements, briefing-preview compatibility routes, legacy archive details, and the bundled PostCSS advisory in place. Addressing them now would create more regression risk and maintenance work than product value.
+
+Consequence:
+
+The daily cron is the normal generation path, manual refresh is reserved for specific investigations, and `/raw` remains the occasional internal review tool. New work should begin from a concrete user need, reproducible defect, severe quality failure, supported dependency update, or operational incident. Routine repeated control runs are not required.
+
+Status:
+
+active

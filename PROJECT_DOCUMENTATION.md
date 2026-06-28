@@ -18,7 +18,7 @@ Promotion changes:
 - `/briefing-preview` permanently redirects to `/` for saved links and installed web-app sessions
 - `/raw` remains available in the simple three-item mobile navigation for future source validation
 - detail back navigation returns through same-origin history and otherwise falls back to `/`, including direct iPhone home-screen entries
-- Phase-1 mock dashboard components remain in the repository temporarily but are no longer routed as the primary experience
+- Phase-1 archive and legacy news-detail code remains for the existing archive route; the unreachable mock dashboard UI was removed in the later maintenance cleanup
 
 The former preview routes can be removed in a later cleanup only after compatibility links are no longer needed. No database, paid source API, public generation endpoint, or additional scheduled run was introduced.
 
@@ -51,6 +51,24 @@ Overview-to-detail-to-back navigation returned to `/`. A permanent detail URL op
 The fifth post-promotion package updates only the transitive `undici` lockfile entry used by `@vercel/blob`, from 6.26.0 to 6.27.0. The existing Blob package range already permits this version, so no application API, storage behavior, package manifest, or architecture changes. This removes the high-severity Undici advisories reported by npm audit.
 
 Two moderate advisories remain in Next.js's bundled PostCSS 8.4.31. npm offers only `npm audit fix --force`, which would replace Next 16 with the breaking and obsolete Next 9.3.3; that remediation is explicitly rejected. The application does not pass untrusted user CSS into PostCSS at runtime. The remaining advisory should be revisited when a supported Next.js patch updates its bundled PostCSS, not through an override or forced downgrade.
+
+### Current Operating Handoff On 2026-06-28
+
+The post-promotion maintenance sequence is complete. Local `main` and `origin/main` both contain commits `94b3bee`, `25a7251`, `cebafec`, `32dc69c`, and `3294b86`. The final production smoke check returned HTTP 200 for `/`, HTTP 308 from `/preview` to `/raw`, and HTTP 401 for an unauthenticated cron request. The test baseline contains 15 fixture tests across 6 files; `npm test`, `npm run check`, and `npm run build` passed after the final dependency change.
+
+Normal operation is now the recommended next step:
+
+- use `/` as the daily briefing and `/briefing/[category]/[id]` for permanent details
+- let the single protected daily cron remain the normal generation path
+- keep `/raw` for occasional internal source and quality review
+- use manual refresh only for a specific operational or quality investigation, not routine control loops
+- accept fewer than three reports when the live source set cannot support three grounded events
+- investigate only reproducible severe factual, duplication, wrong-sport, sourcing, military-confirmation, or incomplete-storage defects
+- defer minor wording and visual polish until a concrete product need appears
+- retain `/briefing-preview` compatibility redirects for now
+- revisit the two moderate bundled PostCSS advisories only through a supported Next.js update; never use the currently suggested forced downgrade
+
+The older June 14 and June 15 handoff sections below remain as historical incident documentation. Their promotion blockers and instructions not to replace `/` are superseded by the explicit June 27 promotion and this operating handoff.
 
 ### Current Handoff On 2026-06-14
 
