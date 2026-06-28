@@ -39,6 +39,8 @@ npm run build
 
 Die Tests sichern außerdem den geschützten Tagesbetrieb ab: Ein vorhandener Snapshot desselben UTC-Tages verhindert einen zweiten Lauf, und ein Generierungsfehler darf den bestehenden Snapshot nicht überschreiben.
 
+`/raw` ist die einzige interne Oberfläche für Quellen-, Kandidaten- und Qualitätsreview. Der historische Pfad `/preview` leitet dauerhaft dorthin weiter; `/briefing-preview` bleibt separat als Kompatibilitätsredirect für frühere Briefing-Links bestehen.
+
 ## Vercel Deployment
 
 Beim Import in Vercel:

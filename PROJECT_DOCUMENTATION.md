@@ -34,6 +34,12 @@ The second post-promotion maintenance package hardens the existing cron and manu
 
 Operational fixture tests verify that an existing same-UTC-day snapshot prevents candidate fetching, model generation, and storage writes; a provider failure never calls snapshot storage; and a completed generation writes exactly once. The existing transactional behavior remains unchanged: the previous private Blob snapshot stays available until a complete replacement has passed generation, merge, validation, and storage.
 
+### Reversible Legacy UI Cleanup On 2026-06-28
+
+The third post-promotion maintenance package removes only UI code proven unreachable after the main-dashboard promotion. The unused Phase-1 `Dashboard` and `ModeToggle` components are deleted. The superseded candidate presentation at `/preview` now permanently redirects to `/raw`, which is the retained internal source, candidate, and quality-review surface; the old presentation component is removed.
+
+This cleanup does not remove `/briefing-preview` or its detail redirects, because those routes still protect saved links and installed-app history. It also does not alter `/`, `/briefing/[category]/[id]`, `/raw`, `/archive`, the legacy `/news/[id]` archive details, generation APIs, Blob storage, or mobile navigation. The `/preview` redirect preserves old bookmarks without maintaining two internal review interfaces.
+
 ### Current Handoff On 2026-06-14
 
 The intended next milestone is to make the Phase-3 briefing experience reliable and polished enough to replace the Phase-1 mock dashboard as the normal start page. This replacement has not been approved or implemented yet.

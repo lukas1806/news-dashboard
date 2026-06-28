@@ -949,3 +949,25 @@ An existing snapshot from the same UTC day causes no candidate, OpenAI, or Blob 
 Status:
 
 active
+
+### Decision 062 - Consolidate Internal Review On Raw
+
+Decision:
+
+Remove unreachable Phase-1 dashboard components and permanently redirect the superseded `/preview` candidate presentation to the retained `/raw` review tool.
+
+Reason:
+
+After promotion, the old dashboard component has no route and the candidate preview duplicates internal review functionality already available under `/raw`. Keeping both increases maintenance surface without adding a productive workflow.
+
+Tradeoff:
+
+The former candidate-card presentation is no longer independently rendered. Existing `/preview` links continue to work by landing on the more complete raw review interface.
+
+Consequence:
+
+`Dashboard`, `ModeToggle`, and `CandidateDashboardPreview` are removed. `/preview` remains as a permanent compatibility redirect to `/raw`. Briefing-preview redirects, archive and news details, production briefing routes, generation APIs, and mobile navigation remain unchanged.
+
+Status:
+
+active
