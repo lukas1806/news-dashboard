@@ -43,6 +43,8 @@ Die Tests sichern außerdem den geschützten Tagesbetrieb ab: Ein vorhandener Sn
 
 Für mobile Routing-Änderungen zusätzlich bei 390 x 844 prüfen: kein horizontaler Overflow, Übersicht → Detail → Zurück, direkter Detail-Einstieg → `/` sowie die Redirects von `/briefing-preview` und alten Preview-Detail-URLs.
 
+Dependency-Updates werden einzeln geprüft. Kein `npm audit fix --force`: Der aktuell vorgeschlagene PostCSS-Fix würde Next.js auf eine inkompatible alte Hauptversion zurücksetzen.
+
 ## Vercel Deployment
 
 Beim Import in Vercel:

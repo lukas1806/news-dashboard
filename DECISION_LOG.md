@@ -993,3 +993,25 @@ No UI code changes are part of package 4. Future mobile work should require a re
 Status:
 
 active
+
+### Decision 064 - Apply Only The Safe Transitive Security Update
+
+Decision:
+
+Update the lockfile-resolved Undici dependency from 6.26.0 to 6.27.0 and reject npm's forced PostCSS remediation.
+
+Reason:
+
+`@vercel/blob` already permits Undici 6.27.0, which resolves the high-severity audit findings without changing application APIs. The only offered PostCSS fix would downgrade Next 16 to Next 9.3.3 and introduce substantially greater compatibility and security risk.
+
+Tradeoff:
+
+Two moderate audit entries remain in Next's bundled PostCSS until the framework ships a supported dependency update. The project accepts that temporary, documented residual risk rather than forcing an incompatible framework version.
+
+Consequence:
+
+Blob networking uses the patched Undici version with no manifest or runtime-code change. Do not run `npm audit fix --force`; revisit the remaining PostCSS advisory during a normal supported Next.js patch review.
+
+Status:
+
+active

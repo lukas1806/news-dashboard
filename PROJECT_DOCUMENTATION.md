@@ -26,7 +26,7 @@ The former preview routes can be removed in a later cleanup only after compatibi
 
 The first post-promotion maintenance package adds a local Vitest suite without changing production behavior. It covers Champions League draw clustering across spelling variants, same-run and retained duplicates, source reuse, invented first names, football terminology in Handball, weak unconfirmed single-source politics, and snapshot schema limits. Pure internal grounding and merge functions are exported only to make those rules directly testable. Tests use fixtures and never call RSS feeds, Vercel Blob, or OpenAI.
 
-Every future code change should run `npm test`, `npm run check`, and `npm run build`. The npm audit currently reports transitive advisories in the installed Next.js/PostCSS and Undici dependency trees. No automatic or forced audit fix was applied because the suggested PostCSS remediation would install a breaking Next.js version; dependency remediation must be handled as a separate reviewed maintenance change.
+Every future code change should run `npm test`, `npm run check`, and `npm run build`. The initial npm audit reported transitive advisories in the installed Next.js/PostCSS and Undici dependency trees. No automatic or forced audit fix was applied because the suggested PostCSS remediation would install a breaking Next.js version; dependency remediation must be handled as a separate reviewed maintenance change. Package 5 later resolves the Undici advisory safely.
 
 ### Protected Run And Storage Safeguards On 2026-06-28
 
@@ -45,6 +45,12 @@ This cleanup does not remove `/briefing-preview` or its detail redirects, becaus
 The fourth post-promotion package was completed as a production acceptance pass without code changes. At an iPhone-sized 390 x 844 viewport, `/` and a permanent briefing detail page had no horizontal overflow. The three-item bottom navigation remained readable, the overview exposed its briefing cards, and the detail page exposed description, importance, concrete impact, uncertainty, and source sections.
 
 Overview-to-detail-to-back navigation returned to `/`. A permanent detail URL opened in a fresh browser tab also returned to `/`, confirming the fallback used by direct iPhone home-screen entries. `/briefing-preview` redirected to `/`, an old preview detail URL redirected to the matching `/briefing/[category]/[id]` page, and the package-3 `/preview` route redirected to `/raw`. Because no reproducible mobile, detail, back-navigation, or compatibility-route defect was found, no speculative UI polish was introduced.
+
+### Controlled Dependency Maintenance On 2026-06-28
+
+The fifth post-promotion package updates only the transitive `undici` lockfile entry used by `@vercel/blob`, from 6.26.0 to 6.27.0. The existing Blob package range already permits this version, so no application API, storage behavior, package manifest, or architecture changes. This removes the high-severity Undici advisories reported by npm audit.
+
+Two moderate advisories remain in Next.js's bundled PostCSS 8.4.31. npm offers only `npm audit fix --force`, which would replace Next 16 with the breaking and obsolete Next 9.3.3; that remediation is explicitly rejected. The application does not pass untrusted user CSS into PostCSS at runtime. The remaining advisory should be revisited when a supported Next.js patch updates its bundled PostCSS, not through an override or forced downgrade.
 
 ### Current Handoff On 2026-06-14
 
