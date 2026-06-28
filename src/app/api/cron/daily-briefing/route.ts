@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateAndSaveDailyBriefing } from "@/lib/briefing-generation";
 import { categories } from "@/lib/news";
+import { secretsMatch } from "@/lib/request-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,8 +23,11 @@ export async function GET(request: Request) {
       counts: Object.fromEntries(categories.map(({ id }) => [id, snapshot.categories[id].length])),
     });
   } catch (error) {
+    console.error("Daily briefing generation failed", {
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    });
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Could not generate daily briefing" },
+      { error: "Could not generate daily briefing" },
       { status: 500 },
     );
   }
@@ -32,9 +36,5 @@ export async function GET(request: Request) {
 function isAuthorizedCronRequest(request: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronSecret) {
-    return false;
-  }
-
-  return request.headers.get("authorization") === `Bearer ${cronSecret}`;
+  return secretsMatch(request.headers.get("authorization"), cronSecret ? `Bearer ${cronSecret}` : undefined);
 }

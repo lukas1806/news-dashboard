@@ -927,3 +927,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 061 - Harden Protected Runs Without New Infrastructure
+
+Decision:
+
+Use one timing-safe exact-match helper for cron and manual-refresh credentials, keep internal generation errors out of HTTP responses, and add operational tests around daily reuse and snapshot writes.
+
+Reason:
+
+The daily briefing depends on one protected scheduled request and one private latest snapshot. These small safeguards reduce secret and provider-detail exposure while making the most important no-double-run and no-overwrite-on-failure contracts executable.
+
+Tradeoff:
+
+The browser receives a generic failure message instead of the provider's raw error text. Detailed diagnosis continues through protected deployment logs, which intentionally record only the error type rather than potentially sensitive message content.
+
+Consequence:
+
+An existing snapshot from the same UTC day causes no candidate, OpenAI, or Blob work. Failed generation is covered by a test proving that snapshot storage is not called, while successful generation writes once. No database, new API, paid service, or additional daily generation is introduced.
+
+Status:
+
+active

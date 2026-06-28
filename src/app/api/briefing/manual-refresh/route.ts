@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { generateAndSaveDailyBriefing } from "@/lib/briefing-generation";
 import { loadManualBriefingRunState, saveManualBriefingRunState } from "@/lib/briefing-storage";
 import { categories } from "@/lib/news";
+import { secretsMatch } from "@/lib/request-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   }
 
   const body = await readBody(request);
-  if (!body || !passwordsMatch(body.password, configuredPassword)) {
+  if (!body || !secretsMatch(body.password, configuredPassword)) {
     return NextResponse.json({ error: "Admin-Passwort ist nicht korrekt." }, { status: 401 });
   }
 
@@ -42,9 +42,12 @@ export async function POST(request: Request) {
       counts: Object.fromEntries(categories.map(({ id }) => [id, snapshot.categories[id].length])),
     });
   } catch (error) {
+    console.error("Manual briefing generation failed", {
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    });
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Der neue Report konnte nicht vollständig erzeugt werden.",
+        error: "Der neue Report konnte nicht vollständig erzeugt werden.",
         attemptsUsed: nextAttempts,
         attemptsRemaining: MAX_DAILY_ATTEMPTS - nextAttempts,
       },
@@ -62,12 +65,6 @@ async function readBody(request: Request): Promise<{ password: string } | null> 
   } catch {
     return null;
   }
-}
-
-function passwordsMatch(provided: string, configured: string): boolean {
-  const providedBuffer = Buffer.from(provided);
-  const configuredBuffer = Buffer.from(configured);
-  return providedBuffer.length === configuredBuffer.length && timingSafeEqual(providedBuffer, configuredBuffer);
 }
 
 function getBerlinDateKey(): string {

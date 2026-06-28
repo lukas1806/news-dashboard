@@ -28,6 +28,12 @@ The first post-promotion maintenance package adds a local Vitest suite without c
 
 Every future code change should run `npm test`, `npm run check`, and `npm run build`. The npm audit currently reports transitive advisories in the installed Next.js/PostCSS and Undici dependency trees. No automatic or forced audit fix was applied because the suggested PostCSS remediation would install a breaking Next.js version; dependency remediation must be handled as a separate reviewed maintenance change.
 
+### Protected Run And Storage Safeguards On 2026-06-28
+
+The second post-promotion maintenance package hardens the existing cron and manual-refresh paths without adding another endpoint, scheduled run, storage system, or provider call. Cron authorization and the manual admin password now share one timing-safe exact-match helper. Failed generation responses remain useful to the UI but no longer return raw internal provider error messages; server logs record only the error type and never the configured secret or submitted password.
+
+Operational fixture tests verify that an existing same-UTC-day snapshot prevents candidate fetching, model generation, and storage writes; a provider failure never calls snapshot storage; and a completed generation writes exactly once. The existing transactional behavior remains unchanged: the previous private Blob snapshot stays available until a complete replacement has passed generation, merge, validation, and storage.
+
 ### Current Handoff On 2026-06-14
 
 The intended next milestone is to make the Phase-3 briefing experience reliable and polished enough to replace the Phase-1 mock dashboard as the normal start page. This replacement has not been approved or implemented yet.

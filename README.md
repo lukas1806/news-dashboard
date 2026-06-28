@@ -37,6 +37,8 @@ npm run build
 
 `npm test` führt lokale Regressionstests für Candidate-Dubletten, Briefing-Grounding, Quellenwiederverwendung und Snapshot-Validierung aus. Die Tests verwenden nur Fixtures und verursachen keine RSS-, Blob- oder OpenAI-Aufrufe.
 
+Die Tests sichern außerdem den geschützten Tagesbetrieb ab: Ein vorhandener Snapshot desselben UTC-Tages verhindert einen zweiten Lauf, und ein Generierungsfehler darf den bestehenden Snapshot nicht überschreiben.
+
 ## Vercel Deployment
 
 Beim Import in Vercel:
