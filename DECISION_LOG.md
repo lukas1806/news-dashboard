@@ -971,3 +971,25 @@ Consequence:
 Status:
 
 active
+
+### Decision 063 - Accept The Current Mobile And Detail Flow
+
+Decision:
+
+Keep the promoted mobile navigation, permanent detail layout, back-navigation logic, and briefing compatibility redirects unchanged after a focused production acceptance pass.
+
+Reason:
+
+The 390 x 844 production test found no horizontal overflow or missing detail metadata. Both history-based navigation and a direct-entry fallback returned correctly to the main briefing, while old preview links reached their permanent destinations.
+
+Tradeoff:
+
+Minor visual polish remains possible, but changing a passing mobile flow would add regression risk without addressing a demonstrated product problem.
+
+Consequence:
+
+No UI code changes are part of package 4. Future mobile work should require a reproducible issue. The current three-item navigation, detail sections, source links, uncertainty display, direct-entry fallback, and compatibility redirects remain the accepted baseline.
+
+Status:
+
+active

@@ -40,6 +40,12 @@ The third post-promotion maintenance package removes only UI code proven unreach
 
 This cleanup does not remove `/briefing-preview` or its detail redirects, because those routes still protect saved links and installed-app history. It also does not alter `/`, `/briefing/[category]/[id]`, `/raw`, `/archive`, the legacy `/news/[id]` archive details, generation APIs, Blob storage, or mobile navigation. The `/preview` redirect preserves old bookmarks without maintaining two internal review interfaces.
 
+### Production Mobile And Routing Acceptance On 2026-06-28
+
+The fourth post-promotion package was completed as a production acceptance pass without code changes. At an iPhone-sized 390 x 844 viewport, `/` and a permanent briefing detail page had no horizontal overflow. The three-item bottom navigation remained readable, the overview exposed its briefing cards, and the detail page exposed description, importance, concrete impact, uncertainty, and source sections.
+
+Overview-to-detail-to-back navigation returned to `/`. A permanent detail URL opened in a fresh browser tab also returned to `/`, confirming the fallback used by direct iPhone home-screen entries. `/briefing-preview` redirected to `/`, an old preview detail URL redirected to the matching `/briefing/[category]/[id]` page, and the package-3 `/preview` route redirected to `/raw`. Because no reproducible mobile, detail, back-navigation, or compatibility-route defect was found, no speculative UI polish was introduced.
+
 ### Current Handoff On 2026-06-14
 
 The intended next milestone is to make the Phase-3 briefing experience reliable and polished enough to replace the Phase-1 mock dashboard as the normal start page. This replacement has not been approved or implemented yet.

@@ -41,6 +41,8 @@ Die Tests sichern außerdem den geschützten Tagesbetrieb ab: Ein vorhandener Sn
 
 `/raw` ist die einzige interne Oberfläche für Quellen-, Kandidaten- und Qualitätsreview. Der historische Pfad `/preview` leitet dauerhaft dorthin weiter; `/briefing-preview` bleibt separat als Kompatibilitätsredirect für frühere Briefing-Links bestehen.
 
+Für mobile Routing-Änderungen zusätzlich bei 390 x 844 prüfen: kein horizontaler Overflow, Übersicht → Detail → Zurück, direkter Detail-Einstieg → `/` sowie die Redirects von `/briefing-preview` und alten Preview-Detail-URLs.
+
 ## Vercel Deployment
 
 Beim Import in Vercel:
