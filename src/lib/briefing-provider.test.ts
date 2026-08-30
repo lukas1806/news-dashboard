@@ -102,4 +102,21 @@ describe("groundGeneratedBriefing", () => {
 
     expect(result.wirtschaft).toHaveLength(1);
   });
+
+  it("fills Wirtschaft to three distinct source-grounded reports when the model returns too few", () => {
+    const sources = [
+      candidate("economy-1", "wirtschaft", "Industrie investiert", "Ein Unternehmen investiert in ein neues Werk."),
+      candidate("economy-2", "wirtschaft", "EZB entscheidet", "Die Zentralbank veröffentlicht ihre neue Entscheidung."),
+      candidate("economy-3", "wirtschaft", "Export zieht an", "Die Ausfuhren entwickeln sich im aktuellen Bericht positiv."),
+    ];
+    const result = groundGeneratedBriefing(
+      generated("wirtschaft", [generatedItem([sources[0].id], { title: sources[0].title })]),
+      groups("wirtschaft", sources),
+      generatedAt,
+    );
+
+    expect(result.wirtschaft).toHaveLength(3);
+    expect(new Set(result.wirtschaft.flatMap((item) => item.sources.map((source) => source.articleId))).size).toBe(3);
+    expect(result.wirtschaft.slice(1).every((item) => item.uncertaintyNote?.includes("Kompakte Quellenvorschau"))).toBe(true);
+  });
 });

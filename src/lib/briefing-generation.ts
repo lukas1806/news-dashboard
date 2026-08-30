@@ -8,7 +8,7 @@ import type { CandidateArticle } from "@/types/source";
 
 const RETAINED_ITEM_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const MAX_ITEMS_PER_CATEGORY = 5;
-const BRIEFING_CANDIDATE_POOL_SIZE = 8;
+const BRIEFING_CANDIDATE_POOL_SIZE = 15;
 
 export async function generateAndSaveDailyBriefing({ force = false }: { force?: boolean } = {}) {
   const existingSnapshot = await loadBriefingSnapshot();

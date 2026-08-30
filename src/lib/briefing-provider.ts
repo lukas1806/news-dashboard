@@ -31,6 +31,7 @@ type OpenAiResponse = {
 };
 
 const MAX_ITEMS_PER_CATEGORY = 5;
+const MIN_ITEMS_PER_CATEGORY = 3;
 const DEFAULT_MODEL = "gpt-5-mini";
 const OPENAI_REQUEST_TIMEOUT_MS = 270_000;
 
@@ -79,7 +80,7 @@ async function generateOpenAiBriefing(candidateGroups: CandidateGroups): Promise
           {
             role: "system",
             content:
-              "Du erstellst ein deutsches Executive News Briefing aus RSS-Metadaten. Nutze ausschließlich Fakten, die im Titel oder Auszug der jeweils zugeordneten Artikel ausdrücklich stehen. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse, Folgen oder Quellen. Wenn nur ein Nachname geliefert wird, verwende nur diesen Nachnamen und ergänze keinen Vornamen. Übernimm vollständige Personen- und Organisationsnamen exakt aus den zugeordneten Quellen; kombiniere niemals Namensbestandteile aus verschiedenen Artikeln. Behaupte keine Transfers, Vertragsfolgen, Sperren, Einschaltquoten, taktischen Details, Marktreaktionen oder anderen Auswirkungen, wenn sie nicht ausdrücklich im zugeordneten Titel oder Auszug stehen. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Artikel dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge grundsätzlich 5 eigenständige Briefings pro Kategorie, sofern mindestens 5 tragfähige Ereignisse geliefert wurden. Gib weniger aus, sobald die gelieferten Fakten keinen weiteren substanziellen Bericht tragen; fülle Texte und Listen niemals künstlich auf. Der Teaser ist genau ein kurzer, informativer Satz. Die Beschreibung soll 4 bis 7 knappe, belegte Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 1 bis 2 vorsichtige Sätze umfassen und dürfen keine neuen Tatsachen behaupten. Ein Bericht soll typischerweise 120 bis 220 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Schreibe redaktionell natürlich über den Bericht oder die Quelle; verwende im fertigen Text keine technischen Wörter wie RSS, Metadaten, Auszug, Exzerpt oder Exzerpttext. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
+              "Du erstellst ein deutsches Executive News Briefing aus RSS-Metadaten. Nutze ausschließlich Fakten, die im Titel oder Auszug der jeweils zugeordneten Artikel ausdrücklich stehen. Erfinde, ergänze oder extrapoliere keine Fakten, Namen, Ereignisse, Folgen oder Quellen. Wenn nur ein Nachname geliefert wird, verwende nur diesen Nachnamen und ergänze keinen Vornamen. Übernimm vollständige Personen- und Organisationsnamen exakt aus den zugeordneten Quellen; kombiniere niemals Namensbestandteile aus verschiedenen Artikeln. Behaupte keine Transfers, Vertragsfolgen, Sperren, Einschaltquoten, taktischen Details, Marktreaktionen oder anderen Auswirkungen, wenn sie nicht ausdrücklich im zugeordneten Titel oder Auszug stehen. Behandle pro Briefing genau ein Hauptereignis. Nebenthemen aus einem Artikel dürfen nicht in das Briefing zum Hauptereignis gemischt werden. Fasse mehrere Artikel nur zusammen, wenn sie eindeutig dasselbe konkrete Ereignis behandeln. Verwende denselben Artikel nicht für mehrere Briefings. Verwirf Kandidaten mit zu wenig Substanz und einseitige militärische Behauptungen ohne ausreichende Bestätigung. Erzeuge mindestens 3 und höchstens 5 eigenständige Briefings pro Kategorie, sofern mindestens 3 tragfähige Ereignisse geliefert wurden; bei fünf oder mehr tragfähigen Ereignissen sollen es fünf sein. Gib nur dann weniger als drei aus, wenn tatsächlich weniger als drei tragfähige Ereignisse geliefert wurden; fülle Texte und Listen niemals künstlich auf. Der Teaser ist genau ein kurzer, informativer Satz. Die Beschreibung soll 4 bis 7 knappe, belegte Sätze enthalten. Warum wichtig und konkrete Auswirkungen sollen jeweils 1 bis 2 vorsichtige Sätze umfassen und dürfen keine neuen Tatsachen behaupten. Ein Bericht soll typischerweise 120 bis 220 deutsche Wörter enthalten und in weniger als 5 Minuten lesbar sein. Schreibe redaktionell natürlich über den Bericht oder die Quelle; verwende im fertigen Text keine technischen Wörter wie RSS, Metadaten, Auszug, Exzerpt oder Exzerpttext. Markiere Unsicherheit transparent. Schreibe keine internen Anmerkungen oder Meta-Kommentare in den Text.",
           },
           {
             role: "user",
@@ -128,7 +129,7 @@ export function groundGeneratedBriefing(
     categories.map(({ id: category }) => {
       const candidates = new Map(candidateGroups[category].map((candidate) => [candidate.id, candidate]));
       const usedSourceIds = new Set<string>();
-      const items = generated[category]
+      const generatedItems = generated[category]
         .slice(0, MAX_ITEMS_PER_CATEGORY)
         .map<GroundedGeneratedItem | null>((item) => {
           const sourceArticles = Array.from(new Set(item.sourceArticleIds))
@@ -190,9 +191,83 @@ export function groundGeneratedBriefing(
         })
         .filter((item): item is BriefingItem => item !== null);
 
-      return [category, items];
+      return [category, fillMissingBriefings(category, generatedItems, candidateGroups[category])];
     }),
   ) as Record<NewsCategory, BriefingItem[]>;
+}
+
+/**
+ * The model may deliberately omit otherwise sound reports when its longer
+ * editorial format cannot be supported by a short RSS excerpt. Keep the
+ * dashboard useful in that case by showing source-grounded, explicitly
+ * labelled compact reports. They still use the same scored, fresh and diverse
+ * candidate selection as AI-generated reports.
+ */
+function fillMissingBriefings(
+  category: NewsCategory,
+  items: BriefingItem[],
+  candidates: CandidateArticle[],
+): BriefingItem[] {
+  if (category === "handball" || items.length >= MIN_ITEMS_PER_CATEGORY || candidates.length < MIN_ITEMS_PER_CATEGORY) {
+    return items;
+  }
+
+  const selected = [...items];
+  const usedSourceIds = new Set(items.flatMap((item) => item.sources.map((source) => source.articleId)));
+
+  for (const candidate of candidates) {
+    if (selected.length >= MIN_ITEMS_PER_CATEGORY) {
+      break;
+    }
+
+    if (usedSourceIds.has(candidate.id) || !isSuitableFallbackCandidate(category, candidate)) {
+      continue;
+    }
+
+    selected.push(createSourceGroundedFallback(category, candidate));
+    usedSourceIds.add(candidate.id);
+  }
+
+  return selected;
+}
+
+function isSuitableFallbackCandidate(category: NewsCategory, candidate: CandidateArticle): boolean {
+  if (category !== "politik") {
+    return true;
+  }
+
+  const text = [candidate.title, candidate.excerpt].filter(Boolean).join(" ").toLowerCase();
+  return !containsAny(text, [
+    "militär meldet",
+    "militaer meldet",
+    "verteidigungsministerium berichtet",
+    "nach angaben des militärs",
+    "nach angaben des militaers",
+  ]);
+}
+
+function createSourceGroundedFallback(category: NewsCategory, candidate: CandidateArticle): BriefingItem {
+  const excerpt = candidate.excerpt?.trim();
+
+  return {
+    id: createBriefingItemId(category, [candidate]),
+    category,
+    title: candidate.title.trim(),
+    teaser: excerpt?.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || candidate.title.trim(),
+    summary: excerpt || "Die Quelle liefert zu dieser aktuellen Meldung keinen weiteren Auszug.",
+    whyImportant: candidate.candidateReasons.slice(0, 2).join(" und ") || "Als aktuelle, relevante Meldung ausgewählt.",
+    concreteImpact: "Die weitere Entwicklung sollte beobachtet werden; die Einordnung basiert auf einer einzelnen Quelle.",
+    createdAt: new Date().toISOString(),
+    relevanceScore: Math.min(100, candidate.candidateScore),
+    uncertainty: "medium",
+    uncertaintyNote: "Kompakte Quellenvorschau: Diese Meldung wurde noch nicht ausführlich durch die KI verdichtet.",
+    sources: [{
+      articleId: candidate.id,
+      name: candidate.sourceName,
+      url: candidate.url,
+      publishedAt: candidate.publishedAt as string,
+    }],
+  };
 }
 
 function createBriefingItemId(category: NewsCategory, sources: CandidateArticle[]): string {

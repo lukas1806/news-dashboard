@@ -42,7 +42,7 @@ export function BriefingPreview({
           </div>
         </div>
         <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-          Bis zu fünf priorisierte Meldungen pro Bereich. Die Übersicht ist für einen schnellen Scan gedacht; jede Kachel führt zum ausführlichen Bericht.
+          Mindestens drei, maximal fünf priorisierte Meldungen pro Bereich. Die Übersicht ist für einen schnellen Scan gedacht; jede Kachel führt zum ausführlichen Bericht.
         </p>
 
         {snapshot ? (
